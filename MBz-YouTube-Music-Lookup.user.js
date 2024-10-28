@@ -5,7 +5,7 @@
 // @match       *://musicbrainz.*/release*
 // @match       *://beta.musicbrainz.*/release*
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @author      afro
 // @description Add a YouTube Music Lookup button
 // @run-at      document-idle
@@ -24,11 +24,10 @@
 
 function addYTMbtn(){
 
-//these need to be fixed, using this querySelector thingy doesn't always fetch the artist, or more than one artist
-  var relTitle = document.querySelector('div.wrap-anywhere > h1:nth-child(4) > a:nth-child(1) > bdi:nth-child(1)').textContent;
-  var relArtist = document.querySelector('.subheader > a:nth-child(2) > bdi:nth-child(1)').textContent;
-
-//could do some styling on the actual button but it just working is enough for me rn
+//many thanks to kellnerd for helping me figure this part out - https://github.com/kellnerd
+  var relTitle = document.querySelector('div.releaseheader > h1 a > bdi').textContent;
+  var relArtist = Array.from(document.querySelectorAll('div.releaseheader a[href^="/artist/"] > bdi'), (element) => element.textContent).join(' ');
+  
   let btnYTMLookup = document.createElement("BUTTON");
     btnYTMLookup.innerText = 'YouTube Music Lookup';
     btnYTMLookup.onclick = () => {
