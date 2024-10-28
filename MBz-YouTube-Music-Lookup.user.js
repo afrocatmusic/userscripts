@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        MBz YouTube Music Lookup
-// @namespace   Violentmonkey Scripts
+// @namespace   https://github.com/afrocatmusic/userscripts
 // @match       *://musicbrainz.*/release*
 // @grant       none
 // @version     1.0
