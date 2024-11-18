@@ -17,7 +17,7 @@ function addYTMlink(){
   var relArtist = rawArtist.slice(3);
   var relTitle = document.querySelector('.release-title').textContent;
   var rawSearchURL = 'https://music.youtube.com/search?q='+relArtist+'%20'+relTitle;
-  var searchURL = rawSearchURL.replace(/&/i,'%26'); //might need to replace all the funky URL symbols...
+  var searchURL = rawSearchURL.replace(/&/g,'%26'); //might need to replace all the funky URL symbols...
 
   let a = document.createElement('a');
   let linkYTMtext = document.createTextNode('Youtube Music Lookup');
