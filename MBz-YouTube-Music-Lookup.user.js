@@ -2,8 +2,8 @@
 // @name        MBz YouTube Music Lookup
 // @namespace   https://github.com/afrocatmusic/userscripts
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/MBz-YouTube-Music-Lookup.user.js
-// @match       *://musicbrainz.*/release*
-// @match       *://beta.musicbrainz.*/release*
+// @match       *://musicbrainz.*/release/*
+// @match       *://beta.musicbrainz.*/release/*
 // @grant       none
 // @version     1.1
 // @author      afro
