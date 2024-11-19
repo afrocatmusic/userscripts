@@ -2,8 +2,9 @@
 // @name        MBz Blur NSFW cover art
 // @namespace   https://github.com/afrocatmusic/userscripts
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/MBz-Blur-NSFW-cover-art.user.js
-// @match       *://musicbrainz.*/release*
-// @match       *://beta.musicbrainz.*/release*
+// @match       *://musicbrainz.org/release*
+// @match       *://beta.musicbrainz.org/release*
+// @match       *://musicbrainz.eu/release*
 // @grant       none
 // @version     1.0
 // @author      afro
