@@ -15,3 +15,6 @@ Blurs NSFW cover art on MusicBrainz if it's tagged appropriately. Works on relea
 
 ## [RYM Search release in MusicBrainz](https://github.com/afrocatmusic/userscripts/blob/main/RYM-Search-release-in-MusicBrainz.user.js)
 Adds a link to [RateYourMusic](https://rateyourmusic.com/) release pages to search the current release in MusicBrainz.
+
+## [MBz Copy URLs](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Copy-URLs.user.js)
+Adds a button to MusicBrainz releases to copy all URL relationships to the clipboard.
