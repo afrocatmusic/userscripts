@@ -3,8 +3,9 @@
 // @namespace   https://github.com/afrocatmusic/userscripts
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/MBz-Copy-URLs.user.js
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/MBz-Copy-URLs.user.js
-// @match       *://musicbrainz.*/release/*
-// @match       *://beta.musicbrainz.*/release/*
+// @match       *://musicbrainz.org/release/*
+// @match       *://beta.musicbrainz.org/release/*
+// @match       *://musicbrainz.eu/release/*
 // @grant       GM_setClipboard
 // @grant       GM.setClipboard
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
