@@ -5,6 +5,7 @@
 // @match       *://musicbrainz.org/release/*
 // @match       *://beta.musicbrainz.org/release/*
 // @match       *://musicbrainz.eu/release/*
+// @exclude     /\/release\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\/(discids|cover-art|aliases|tags|details|edit|edit-relationships)/
 // @grant       none
 // @version     1.1
 // @author      afro
@@ -26,18 +27,20 @@
 function addYTMbtn(){
 
 //many thanks to kellnerd for helping me figure this part out - https://github.com/kellnerd
-  var relTitle = document.querySelector('div.releaseheader > h1 a > bdi').textContent;
-  var relArtist = Array.from(document.querySelectorAll('div.releaseheader a[href^="/artist/"] > bdi'), (element) => element.textContent).join(' ');
-  
-  let btnYTMLookup = document.createElement("BUTTON");
-    btnYTMLookup.innerText = 'YouTube Music Lookup';
-    btnYTMLookup.onclick = () => {
-      window.open('https://music.youtube.com/search?q='+relArtist+'%20'+relTitle, '_blank');
-      };
+  var relTitle = document.querySelector('div.releaseheader > h1 a > bdi').textContent.replaceAll('&','%26');
+  var relArtist = Array.from(document.querySelectorAll('div.releaseheader a[href^="/artist/"] > bdi'), (element) => element.textContent).join(' ').replaceAll('&','%26');
 
+  let btnYTMLookup = document.createElement("BUTTON");
+      btnYTMLookup.innerText = 'YouTube Music Lookup';
+      btnYTMLookup.title = 'Search "'+relArtist.replaceAll('%26','&')+' '+relTitle.replaceAll('%26','&')+'" on YouTube Music'
+
+      btnYTMLookup.style.cursor = 'pointer'
+      btnYTMLookup.onclick = () => {
+        window.open('https://music.youtube.com/search?q='+relArtist+'%20'+relTitle, '_blank');
+        };
   let div = document.querySelector('div.tracklist-and-credits');
-    div.appendChild(btnYTMLookup);
+      div.appendChild(btnYTMLookup);
 }
 
 
-window.setTimeout(addYTMbtn, 250);
+window.setTimeout(addYTMbtn, 50);
