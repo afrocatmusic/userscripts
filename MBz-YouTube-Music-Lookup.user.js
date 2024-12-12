@@ -33,7 +33,6 @@ function addYTMbtn(){
   let btnYTMLookup = document.createElement("BUTTON");
       btnYTMLookup.innerText = 'YouTube Music Lookup';
       btnYTMLookup.title = 'Search "'+relArtist.replaceAll('%26','&')+' '+relTitle.replaceAll('%26','&')+'" on YouTube Music'
-
       btnYTMLookup.style.cursor = 'pointer'
       btnYTMLookup.onclick = () => {
         window.open('https://music.youtube.com/search?q='+relArtist+'%20'+relTitle, '_blank');
@@ -41,6 +40,5 @@ function addYTMbtn(){
   let div = document.querySelector('div.tracklist-and-credits');
       div.appendChild(btnYTMLookup);
 }
-
 
 window.setTimeout(addYTMbtn, 50);
