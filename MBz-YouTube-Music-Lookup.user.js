@@ -6,6 +6,7 @@
 // @match       *://beta.musicbrainz.org/release/*
 // @match       *://musicbrainz.eu/release/*
 // @exclude     /\/release\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\/(discids|cover-art|aliases|tags|details|edit|edit-relationships)/
+// @exclude     /\/release\/add/
 // @grant       none
 // @version     1.1
 // @author      afro
