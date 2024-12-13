@@ -17,4 +17,4 @@ Blurs NSFW cover art on MusicBrainz if it's tagged appropriately. Works on relea
 Adds a link to [RateYourMusic](https://rateyourmusic.com/) release pages to search the current release in MusicBrainz.
 
 ## [MBz Copy URLs](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Copy-URLs.user.js)
-Adds a button to MusicBrainz releases to copy all URL relationships to the clipboard.
+Adds a button to MusicBrainz releases to copy all URL relationships to the clipboard. It also enables copying barcodes in one click.
