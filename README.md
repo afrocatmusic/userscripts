@@ -18,3 +18,6 @@ Adds a link to [RateYourMusic](https://rateyourmusic.com/) release pages to sear
 
 ## [MBz Copy URLs](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Copy-URLs.user.js)
 Adds a button to MusicBrainz releases to copy all URL relationships to the clipboard. It also enables copying barcodes in one click.
+
+## [MBz search RYM](https://github.com/afrocatmusic/userscripts/blob/main/MBz-search-RYM.user.js)
+Adds a button to release group pages to search for the corresponding RateYourMusic page using Google.
