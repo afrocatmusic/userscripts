@@ -21,3 +21,6 @@ Adds a button to MusicBrainz releases to copy all URL relationships to the clipb
 
 ## [MBz search RYM](https://github.com/afrocatmusic/userscripts/blob/main/MBz-search-RYM.user.js)
 Adds a button to release group pages to search for the corresponding RateYourMusic page using Google.
+
+## [afro's Beatsource Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Beatsource-Add-Ons.user.js)
+Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.
