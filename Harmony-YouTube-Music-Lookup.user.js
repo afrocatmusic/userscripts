@@ -5,27 +5,27 @@
 // @match       https://harmony.pulsewidth.org.uk/release?*
 // @exclude     https://harmony.pulsewidth.org.uk/release/actions*
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @author      afro
 // @description Adds a YouTube Music Lookup link
-// @run-at      document-idle
 // ==/UserScript==
 
 function addYTMlink(){
-
-  var rawArtist = document.querySelector('.release-artist').textContent;
-  var relArtist = rawArtist.slice(3);
-  var relTitle = document.querySelector('.release-title').textContent;
-  var rawSearchURL = 'https://music.youtube.com/search?q='+relArtist+'%20'+relTitle;
-  var searchURL = rawSearchURL.replace(/&/g,'%26'); //might need to replace all the funky URL symbols...
-
+  var allHeaders = Array.from(document.querySelectorAll('th'));
+  var headerNames = [];
+  for (var i = 0; i < allHeaders.length; i++) {
+      headerNames.push(allHeaders[i].innerText);
+  }
+  var gtinIndex = headerNames.indexOf('GTIN');
+  var barcodeArea = document.querySelectorAll('th')[gtinIndex];
+  var barcode = barcodeArea.nextElementSibling.textContent;
+  var searchURL = 'https://music.youtube.com/search?q=%22'+barcode.replace(/^0+/,'')+'%22';
   let a = document.createElement('a');
   let linkYTMtext = document.createTextNode('Youtube Music Lookup');
-  a.appendChild(linkYTMtext);
-  a.setAttribute('href',searchURL);
-
+      a.appendChild(linkYTMtext);
+      a.setAttribute('href',searchURL);
   let space = document.querySelector('h2.center');
-  space.nextElementSibling.appendChild(a);
+      space.nextElementSibling.appendChild(a);
 }
 
-window.setTimeout(addYTMlink, 250);
+window.setTimeout(addYTMlink, 50);
