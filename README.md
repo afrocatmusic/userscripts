@@ -5,7 +5,8 @@ That being said, these scripts work fine for me, I use [Firefox](https://www.moz
 I'm also very new to github :D  
 
 ## [MBz Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/MBz-YouTube-Music-Lookup.user.js)  
-Adds a button to any MusicBrainz release page. Pressing the button opens a new [Youtube Music](https://music.youtube.com/) tab and searches for the artist and title of that release.
+Adds a button to any MusicBrainz release page. Pressing the button opens a new [Youtube Music](https://music.youtube.com/) tab and searches for the barcode of that release.
+If the release has no barcode, it will search for the artist and title of that release.
 
 ## [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js)  
 Adds a "Youtube Music Lookup" link to any [Harmony](https://harmony.pulsewidth.org.uk/) release page with search parameters of the currently loaded release.
@@ -27,3 +28,4 @@ Adds some extra info to Beatsource release pages and some handy links to help im
 
 ## [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
 Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.
+I recommend using this script instead of [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js), or at least not both at once.
