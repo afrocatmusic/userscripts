@@ -102,7 +102,7 @@ if (document.querySelector('.barcode') === null) { //check if the barcode field 
                       }
 
                       function mouseOut() {
-                        upcField.style.color = "#ffffff";
+                        upcField.style.color = "initial";
                       }
         return;
         }
