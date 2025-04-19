@@ -24,3 +24,6 @@ Adds a button to release group pages to search for the corresponding RateYourMus
 
 ## [afro's Beatsource Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Beatsource-Add-Ons.user.js)
 Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.
+
+## [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
+Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.
