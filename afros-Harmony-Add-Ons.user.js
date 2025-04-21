@@ -77,7 +77,7 @@ function addSearchLinks(){
     ['us','us-en'],
   ]);
     if (regionMap.has(region) === true){qbzRegion = regionMap.get(region)}
-		else if (region.search(',') > -1){qbzRegion = regionMap.get(region.slice(0,2))} //if more than one, default to the first one
+    else if (region.search(',') > -1){qbzRegion = regionMap.get(region.slice(0,2))} //if more than one, default to the first one
     else {qbzRegion = 'us-en'} //any other region, default to us
   var qbzSearchURL = 'https://www.qobuz.com/'+qbzRegion+'/search/albums/'+relArtist+'%20'+relTitle;
   var linkQbzText = document.createTextNode('Search in Qobuz');
