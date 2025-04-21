@@ -21,12 +21,6 @@ function addSearchLinks(){
     } else {
         var relArtist = 'Various Artists';
     }
-//for qobuz localization, WIP
-//right now if there's more than one country, it'll default to a US lookup
-  var region = $('#region-input')[0].value.toLowerCase();
-      if (region.search(',') > -1) {
-          region = 'us';
-      }
   var relTitle = $('.release-title')[0].textContent.replaceAll('&','%26').replaceAll('/',' ');
 //youtube music search (not used anymore)
   var ytSearchURL = 'https://music.youtube.com/search?q='+relArtist+'%20'+relTitle;
@@ -51,7 +45,41 @@ function addSearchLinks(){
       ytRelAnchor.appendChild(ytReleaseLink);
       ytRelAnchor.setAttribute('href',ytRelURL);
 //qobuz
-  var qbzSearchURL = 'https://www.qobuz.com/'+region+'-en/search/albums/'+relArtist+'%20'+relTitle;
+//localization
+  var qbzRegion;
+  var region = $('#region-input')[0].value.toLowerCase();
+  var regionMap = new Map([
+    ['ar','ar-es'],
+    ['au','ar-es'],
+    ['at','at-de'],
+    ['be','be-nl'],
+    ['br','br-pt'],
+    ['ca','ca-en'],
+    ['cl','cl-es'],
+    ['co','co-es'],
+    ['dk','dk-en'],
+    ['fi','fi-en'],
+    ['fr','fr-fr'],
+    ['de','de-de'],
+    ['ie','ie-en'],
+    ['it','it-it'],
+    ['jp','jp-ja'],
+    ['lu','lu-de'],
+    ['mx','mx-es'],
+    ['nl','nl-nl'],
+    ['nz','nz-en'],
+    ['no','no-en'],
+    ['pt','pt-pt'],
+    ['es','es-es'],
+    ['se','se-en'],
+    ['ch','ch-de'],
+    ['gb','gb-en'],
+    ['us','us-en'],
+  ]);
+    if (regionMap.has(region) === true){qbzRegion = regionMap.get(region)}
+		else if (region.search(',') > -1){qbzRegion = regionMap.get(region.slice(0,2))} //if more than one, default to the first one
+    else {qbzRegion = 'us-en'} //any other region, default to us
+  var qbzSearchURL = 'https://www.qobuz.com/'+qbzRegion+'/search/albums/'+relArtist+'%20'+relTitle;
   var linkQbzText = document.createTextNode('Search in Qobuz');
   var qbzAnchor = document.createElement('a');
       qbzAnchor.appendChild(linkQbzText);
