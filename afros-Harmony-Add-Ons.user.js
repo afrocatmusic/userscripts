@@ -50,7 +50,7 @@ function addSearchLinks(){
   var region = $('#region-input')[0].value.toLowerCase();
   var regionMap = new Map([
     ['ar','ar-es'],
-    ['au','ar-es'],
+    ['au','au-en'],
     ['at','at-de'],
     ['be','be-nl'],
     ['br','br-pt'],
