@@ -20,21 +20,21 @@ function linkMe(){
   }
 function findStuff(){
   if (window.location.href.search(/\/release\//) > -1) {
-    var area = $('[data-testid="col-sidebar"]')[0]
-    var rawReleaseInfo = document.documentElement.outerHTML.match(/(?<="pageProps")(.*)(?<=moreFromArtist)/g)[0]; //grab the relevant chunk only
-    var barcode = rawReleaseInfo.match(/(?<="upc":")[0-9]*/g)[0];
-    var catNum = rawReleaseInfo.match(/(?<=catalog_number":")(.*?)(?=")/g)[0];
-    var isrc = rawReleaseInfo.match(/(?<=isrc":")(.*?)(?=")/g)[0];
-    var relTitle = rawReleaseInfo.match(/(?<=\d{3,},"name":")(.*?)(?=","image")/g)[0];
-    var isrcList = rawReleaseInfo.match(/(?<=isrc":")(.*?)(?=")/g);
+    var area = $('[data-testid="col-sidebar"]')[0];
+    var rawReleaseInfo = JSON.parse(document.getElementById('__NEXT_DATA__').innerText).props.pageProps;
+    var barcode = rawReleaseInfo.release.upc;
+    var catNum = rawReleaseInfo.release.catalog_number;
+    var isrc = rawReleaseInfo.tracks.results[0].isrc;
+    var relTitle = rawReleaseInfo.release.name;
+    var isrcList = rawReleaseInfo.tracks.results.map(track => track.isrc);
 
     var infoContainer = document.createElement('div');
-        infoContainer.setAttribute('id','infoContainer')
-        infoContainer.setAttribute('style','font-size: 1.5rem; color: #415974; line-height: 2.5rem; padding-bottom: 1.5rem; margin-top: 1.5rem; white-space: pre-line')
+        infoContainer.setAttribute('id','infoContainer');
+        infoContainer.setAttribute('style','font-size: 1.5rem; color: #415974; line-height: 2.5rem; padding-bottom: 1.5rem; margin-top: 1.5rem; white-space: pre-line');
         area.appendChild(infoContainer);
     var newline = document.createTextNode('\n');
 
-    var relTitleDisplay = document.createTextNode('Title: '+relTitle.replaceAll('&amp;','&'));
+    var relTitleDisplay = document.createTextNode('Title: '+relTitle);
     var barcodeDisplay = document.createTextNode('Barcode: '+barcode);
     var barcodeAnchor = document.createElement('a');
         barcodeAnchor.appendChild(barcodeDisplay);
@@ -59,5 +59,7 @@ function findStuff(){
         infoContainer.append(relTitleDisplay, newline, barcodeAnchor, newline.cloneNode(),catDisplay,newline.cloneNode(),magicISRCAnchor);
   }
 }
-window.setTimeout(findStuff,50);
-window.setTimeout(linkMe,50);
+window.setTimeout(function(){
+  linkMe();
+  findStuff();
+}, 50);
