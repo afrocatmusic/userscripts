@@ -194,7 +194,7 @@ function copyCountries() {
   var unavailArea = $('th')[unavailIndex];
   var unavailableCountries;
   var unavailAnchor = document.createElement('a');
-      unavailAnchor.textContent = 'Unavailablity';
+      unavailAnchor.textContent = 'Unavailability';
       unavailAnchor.title = 'Click to copy';
       unavailAnchor.addEventListener("click", () => writeClipboardTextBarcode(unavailableCountries));
                     async function writeClipboardTextBarcode(text) {
