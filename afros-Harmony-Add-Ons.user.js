@@ -190,6 +190,7 @@ function copyCountries() {
       var today = new Date().toISOString().slice(0, 10);
       var unavailIndex = headerNames.indexOf('Unavailability');
       var unavailArea = $('th')[unavailIndex];
+          unavailArea.setAttribute('style','background: rgba(22, 45, 171, 0.3); padding: 1em;');
       var expandButton = unavailArea.nextElementSibling.querySelector('button');
           if( expandButton === null ){return;} else {
               expandButton.click(); //make sure list is expanded by default
@@ -197,6 +198,7 @@ function copyCountries() {
       var unavailableCountries;
       var unavailAnchor = document.createElement('a');
           unavailAnchor.textContent = 'Unavailability';
+          unavailAnchor.setAttribute('style','text-decoration: underline dotted;')
           unavailAnchor.title = 'Click to copy';
           unavailAnchor.addEventListener("click", () => writeClipboardTextBarcode(unavailableCountries));
             async function writeClipboardTextBarcode(text) {
