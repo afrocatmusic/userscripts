@@ -132,7 +132,7 @@ function copyLinks(){
         }
 
         function mouseOut() {
-          extAnchor.style.color = "initial";
+          extAnchor.style.color = "white";
         }
 }
 
@@ -172,7 +172,7 @@ function copyBarcode(){
           barcodeAnchor.style.color = "#add8e6";
           }
         function mouseOut() {
-          barcodeAnchor.style.color = "initial";
+          barcodeAnchor.style.color = "white";
           }
       barcodeArea.setAttribute('style','background: rgba(22, 45, 171, 0.3); padding: 1em; cursor: pointer;');
       barcodeArea.nextElementSibling.setAttribute('style','background: rgba(22, 45, 171, 0.3); cursor: pointer;');
@@ -220,7 +220,7 @@ function copyCountries() {
               unavailableCountries = 'Unavailable in these regions, as of '+today+':\n' + unavailArea.nextElementSibling.textContent.replaceAll(')',')\n').replace(/\n.*$/, '').replaceAll('(Keeling)\n Islands','(Keeling) Islands');
               }
             function mouseOut() {
-              unavailAnchor.style.color = "initial";
+              unavailAnchor.style.color = "white";
               }
   }
 }
