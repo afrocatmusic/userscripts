@@ -22,31 +22,23 @@ function addSearchLinks(){
         var relArtist = 'Various Artists';
     }
   var relTitle = $('.release-title')[0].textContent.replaceAll('&','%26').replaceAll('/',' ');
-//youtube music search (not used anymore)
-  var ytSearchURL = 'https://music.youtube.com/search?q='+relArtist+'%20'+relTitle;
-  var linkYTMtext = document.createTextNode('Search YouTube Music');
-  var ytAnchor = document.createElement('a');
-      ytAnchor.appendChild(linkYTMtext);
-      ytAnchor.setAttribute('href',ytSearchURL);
 //YTM barcode lookup
-  var allHeaders = Array.from($('th'));
+  var allHeaders = $('th');
   var headerNames = [];
   for (var i = 0; i < allHeaders.length; i++) {
       headerNames.push(allHeaders[i].innerText);
   }
   var gtinIndex = headerNames.indexOf('GTIN');
   var barcodeArea = $('th')[gtinIndex];
-  var barcode = barcodeArea.nextElementSibling.textContent.replace(/^0+/,'');
-
+  var barcode = barcodeArea.nextElementSibling.textContent.replace(/^0+/,''); //remove leading zeroes
   var ytRelURL = 'https://music.youtube.com/search?q=%22'+barcode+'%22';
   var ytReleaseLink = document.createTextNode('Search YouTube Music');
-      ytReleaseLink.title = 'Experimental';
   var ytRelAnchor = document.createElement('a');
       ytRelAnchor.appendChild(ytReleaseLink);
       ytRelAnchor.setAttribute('href',ytRelURL);
 //qobuz
-//localization
   var qbzRegion;
+  let defaultQbzRegion = 'us-en'; //feel free to change
   var region = $('#region-input')[0].value.toLowerCase();
   var regionMap = new Map([
     ['ar','ar-es'],
@@ -76,9 +68,24 @@ function addSearchLinks(){
     ['gb','gb-en'],
     ['us','us-en'],
   ]);
-    if (regionMap.has(region) === true){qbzRegion = regionMap.get(region)}
-		else if (region.search(',') > -1){qbzRegion = regionMap.get(region.slice(0,2))} //if more than one, default to the first one
-    else {qbzRegion = 'us-en'} //any other region, default to us
+  if (region.includes(',')) { //if multiple regions, use the first one that exists in regionMap
+    let regionTest = region.split(',');
+    for (let i = 0; i < regionTest.length; i++) {
+      if (regionMap.has(regionTest[i])) {
+        qbzRegion = regionMap.get(regionTest[i]);
+        break;
+      }
+    }
+      if (qbzRegion === undefined) { //if it's all unsuported regions
+        qbzRegion = defaultQbzRegion;
+      }
+  }
+  else if (regionMap.has(region) === true) { //if it's only one supported region
+    qbzRegion = regionMap.get(region);
+  }
+  else if (regionMap.has(region) === false) { //if it's one unsupported region
+    qbzRegion = defaultQbzRegion;
+  }
   var qbzSearchURL = 'https://www.qobuz.com/'+qbzRegion+'/search/albums/'+relArtist+'%20'+relTitle;
   var linkQbzText = document.createTextNode('Search Qobuz');
   var qbzAnchor = document.createElement('a');
@@ -103,7 +110,7 @@ function copyLinks(){
   }
   var extLinksIndex = headerNames.indexOf('External links'); //position of external links text in the table
   var exLiArea = $('th')[extLinksIndex];
-      exLiArea.setAttribute('style','background: rgba(22, 45, 171, 0.3)')
+      exLiArea.setAttribute('style','background: rgba(22, 45, 171, 0.3)');
   var links = Array.from(exLiArea.nextElementSibling.querySelectorAll('a')).toString().split(',').join('\n');
 
   var extAnchor = document.createElement('a');
@@ -125,8 +132,8 @@ function copyLinks(){
           $.notify('Copied!',{ autoHideDelay:'1500', className:'success', position:'bottom'});
         }
 
-      extAnchor.onmouseover = function() {mouseOver()};
-      extAnchor.onmouseout = function() {mouseOut()};
+      extAnchor.onmouseover = function() {mouseOver();};
+      extAnchor.onmouseout = function() {mouseOut();};
         function mouseOver() {
           extAnchor.style.color = "#add8e6";
         }
@@ -166,8 +173,8 @@ function copyBarcode(){
       barcodeArea.innerText = '';
       barcodeArea.appendChild(barcodeAnchor);
       barcodeAnchor.setAttribute('style', 'cursor: pointer; text-decoration: underline dotted; color: white;');
-      barcodeAnchor.onmouseover = function() {mouseOver()};
-      barcodeAnchor.onmouseout = function() {mouseOut()};
+      barcodeAnchor.onmouseover = function() {mouseOver();};
+      barcodeAnchor.onmouseout = function() {mouseOut();};
         function mouseOver() {
           barcodeAnchor.style.color = "#add8e6";
           }
@@ -198,7 +205,7 @@ function copyCountries() {
       var unavailableCountries;
       var unavailAnchor = document.createElement('a');
           unavailAnchor.textContent = 'Unavailability';
-          unavailAnchor.setAttribute('style','text-decoration: underline dotted;')
+          unavailAnchor.setAttribute('style','text-decoration: underline dotted;');
           unavailAnchor.title = 'Click to copy';
           unavailAnchor.addEventListener("click", () => writeClipboardTextBarcode(unavailableCountries));
             async function writeClipboardTextBarcode(text) {
@@ -215,8 +222,8 @@ function copyCountries() {
             function showCopyNotif() {
               $.notify('Copied!',{ autoHideDelay:'1500', className:'success', position:'bottom'});
             }
-          unavailAnchor.onmouseover = function() {mouseOver()};
-          unavailAnchor.onmouseout = function() {mouseOut()};
+          unavailAnchor.onmouseover = function() {mouseOver();};
+          unavailAnchor.onmouseout = function() {mouseOut();};
             function mouseOver() {
               unavailAnchor.style.color = "#add8e6";
               unavailableCountries = 'Unavailable in these regions, as of '+today+':\n' + unavailArea.nextElementSibling.textContent.replaceAll(')',')\n').replace(/\n.*$/, '').replaceAll('(Keeling)\n Islands','(Keeling) Islands');
