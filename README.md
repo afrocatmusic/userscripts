@@ -10,7 +10,7 @@ If the release has no barcode, it will search for the artist and title of that r
 
 ## [Harmony Youtube Music Lookup (deprecated)](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js)  
 Adds a "Youtube Music Lookup" link to any [Harmony](https://harmony.pulsewidth.org.uk/) release page with search parameters of the currently loaded release.  
-["afro's Harmony Add-Ons"](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js) includes a better YouTube Music search, plus other services and some other handy tools for Harmony.
+[afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js) includes a better YouTube Music search, plus other services and some other handy tools for Harmony.
 
 ## [MBz Blur NSFW cover art](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Blur-NSFW-cover-art.user.js)  
 Blurs NSFW cover art on MusicBrainz if it's tagged appropriately. Works on release and release group pages.
