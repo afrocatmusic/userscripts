@@ -8,8 +8,9 @@ I'm also very new to github :D
 Adds a button to any MusicBrainz release page. Pressing the button opens a new [Youtube Music](https://music.youtube.com/) tab and searches for the barcode of that release.
 If the release has no barcode, it will search for the artist and title of that release.
 
-## [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js)  
-Adds a "Youtube Music Lookup" link to any [Harmony](https://harmony.pulsewidth.org.uk/) release page with search parameters of the currently loaded release.
+## [Harmony Youtube Music Lookup (deprecated)](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js)  
+Adds a "Youtube Music Lookup" link to any [Harmony](https://harmony.pulsewidth.org.uk/) release page with search parameters of the currently loaded release.  
+["afro's Harmony Add-Ons"](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js) includes a better YouTube Music search, plus other services and some other handy tools for Harmony.
 
 ## [MBz Blur NSFW cover art](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Blur-NSFW-cover-art.user.js)  
 Blurs NSFW cover art on MusicBrainz if it's tagged appropriately. Works on release and release group pages.
@@ -27,5 +28,5 @@ Adds a button to release group pages to search for the corresponding RateYourMus
 Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.
 
 ## [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
-Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.
-I recommend using this script instead of [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js), or at least not both at once.
+Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.  
+I recommend using this script instead of [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js), or at least not both at once.  
