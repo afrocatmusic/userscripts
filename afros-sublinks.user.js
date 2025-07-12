@@ -7,7 +7,7 @@
 // @match       https://beta.musicbrainz.org/*
 // @match       https://musicbrainz.eu/*
 // @grant       none
-// @version     0.1
+// @version     0.2
 // @author      afro
 // @description adds sublinks to MB links
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -27,7 +27,7 @@ function css() {
       backdrop-filter: blur(3px);
       filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.2));
       background: rgba(255, 255, 255, 0.75);
-      border: thin solid grey;
+      border: 2px solid grey;
       border-radius: 5px;
       padding: 5px;
       position: absolute;
@@ -37,7 +37,8 @@ function css() {
     .sublinksContainer > ul {
     font-style: initial;
     list-style: none;
-    padding: 0px
+    padding: 0px;
+    margin: 2px;
     }
 
       `;
@@ -64,6 +65,26 @@ function generateLinkList(hoveredURL) {
         const a = document.createElement('a');
           a.href = hoveredURL + suffix;
           a.textContent = suffix.replace('/', '');
+        let aTextMap = new Map([
+          ['releases','Releases'],
+          ['recordings','Recordings'],
+          ['works','Works'],
+          ['events','Events'],
+          ['relationships','Relationships'],
+          ['aliases','Aliases'],
+          ['tags','Tags'],
+          ['ratings','Ratings'],
+          ['details','Details'],
+          ['edit','Edit'],
+          ['open_edits','Open edits'],
+          ['edits','History'],
+          ['fingerprints','Fingerprints'],
+          ['discids','Disc IDs'],
+          ['cover-art','Cover art'],
+        ]);
+        if(aTextMap.has(a.textContent)) {
+          a.textContent = aTextMap.get(suffix.replace('/',''));
+        }
           a.target = '_blank';
           li.appendChild(a);
         return li;
@@ -117,7 +138,7 @@ function openSublinks() {
           //hoveredObject.append(container);
           container.style.display = 'block';
           container.style.left = getOffset(hoveredObject).left + 15 + 'px';
-          container.style.top = getOffset(hoveredObject).top + 15 + 'px';
+          container.style.top = getOffset(hoveredObject).top + 20 + 'px';
       let listItems = generateLinkList(hoveredObject.href);
           listItems.forEach(item => linkList.appendChild(item));
     }
