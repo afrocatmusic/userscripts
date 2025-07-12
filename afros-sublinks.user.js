@@ -7,7 +7,7 @@
 // @match       https://beta.musicbrainz.org/*
 // @match       https://musicbrainz.eu/*
 // @grant       none
-// @version     0.2
+// @version     0.3
 // @author      afro
 // @description adds sublinks to MB links
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -52,7 +52,7 @@ function generateLinkList(hoveredURL) {
   const patterns = {
     'artist/': ['/releases','/recordings','/works','/events','/relationships','/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
     'recording/': ['/fingerprints','/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
-    'release/': ['/discids','/cover-art','/aliases','/tags','/details','/edit','/open_edits','/edits'],
+    'release/': ['/discids','/cover-art','/aliases','/tags','/details','/edit','/edit-relationships','/open_edits','/edits'],
     'release-group/': ['/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
     'work/': ['/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
     'label/': ['/relationships','/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits']
@@ -76,6 +76,7 @@ function generateLinkList(hoveredURL) {
           ['ratings','Ratings'],
           ['details','Details'],
           ['edit','Edit'],
+          ['edit-relationships','Edit rels.'],
           ['open_edits','Open edits'],
           ['edits','History'],
           ['fingerprints','Fingerprints'],
