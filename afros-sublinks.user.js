@@ -7,9 +7,9 @@
 // @match       https://beta.musicbrainz.org/*
 // @match       https://musicbrainz.eu/*
 // @grant       none
-// @version     0.3
+// @version     0.4
 // @author      afro
-// @description adds sublinks to MB links
+// @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
 
@@ -86,7 +86,7 @@ function generateLinkList(hoveredURL) {
         if(aTextMap.has(a.textContent)) {
           a.textContent = aTextMap.get(suffix.replace('/',''));
         }
-          a.target = '_blank';
+          a.target = '_self';
           li.appendChild(a);
         return li;
       });
@@ -116,11 +116,11 @@ function getOffset(el) {
     top: rect.top + window.scrollY
   };
 }
-
 let hoveredObject = null;
+
 function openSublinks() {
-  //regex still not perfect
-  const regexMatch = /musicbrainz\.org\/(?:artist|recording|release|release-group|work|label)\/(?!.*(?:\/(?:releases|recordings|works|events|relationships|aliases|tags|ratings|details|edit|open_edits|edits|fingerprints|discids|cover-art|create|add))(\/|$))/;
+//regex still not perfect
+  const regexMatch = /musicbrainz\.org\/(?:artist|recording|release|release-group|work|label)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
   document.querySelectorAll('a').forEach(link => {
     if (regexMatch.test(link.href)) {
       link.addEventListener('mouseenter', () => {
@@ -150,7 +150,8 @@ function openSublinks() {
       let linkList = $('#linkList');
           linkList.empty();
     }
-  })
+  });
 }
+window.setTimeout(openSublinks,20);
 
-window.setTimeout(openSublinks, 50);
+
