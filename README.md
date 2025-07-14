@@ -21,8 +21,8 @@ Adds a link to [RateYourMusic](https://rateyourmusic.com/) release pages to sear
 ## [MBz Copy URLs](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Copy-URLs.user.js)
 Adds a button to MusicBrainz releases to copy all URL relationships to the clipboard. It also enables copying barcodes in one click.
 
-## [MBz search RYM](https://github.com/afrocatmusic/userscripts/blob/main/MBz-search-RYM.user.js)
-Adds a button to release group pages to search for the corresponding RateYourMusic page using Google.
+## [afro's RG Search Utilities](https://github.com/afrocatmusic/userscripts/blob/main/afros-RG-Search-Utilities.user.js)
+Adds buttons to find the current release group in RateYourMusic, Genius, Wikidata, and AllMusic.
 
 ## [afro's Beatsource Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Beatsource-Add-Ons.user.js)
 Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.
