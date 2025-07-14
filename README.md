@@ -27,7 +27,9 @@ Adds buttons to MusicBrainz release groups to search [RateYourMusic](https://rat
 <img width="500" alt="image" src="https://github.com/user-attachments/assets/3b1b91f3-d304-4a33-a451-c3ef365a24d9" />  
 
 ### [afro's Beatsource Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Beatsource-Add-Ons.user.js)
-Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.
+Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.  
+
+<img height="600" alt="image" src="https://github.com/user-attachments/assets/f7014aa2-52e6-4d0d-99a0-523ee43c83ec" />
 
 ### [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
 Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.  
