@@ -15,11 +15,7 @@
 // ==/UserScript==
 
 function getTitle(rgTitle){
-  if ($('h1 > a')[0] === null) {
-    rgTitle = $('h1 > span > a')[0].innerText;
-  } else {
-    rgTitle = $('h1 > a')[0].innerText;
-  }
+  rgTitle = $('.subheader')[0].previousElementSibling.querySelector('a').innerText;
   rgTitle = encodeURIComponent(rgTitle);
   return rgTitle;
 }
