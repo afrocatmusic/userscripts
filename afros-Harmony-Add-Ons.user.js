@@ -214,7 +214,7 @@ function copyCountries() {
                   .replace(/^(.*)\n(.*)\n(.*)/gm,'$1 $2 $3')
                   .replace(/ $/gm,'');
                 } else {
-                  unavailableCountries = 'Unavailable in these regions, as of '+today+':\n' + unavailArea.nextElementSibling.innerText.replace(/(.*regionsCollapse)/gm,'');
+                  unavailableCountries = 'Unavailable in these regions, as of '+today+':\n' + unavailArea.nextElementSibling.innerText.replace(/(\n.*regionsCollapse)/gm,'');
                 }
             }
             function mouseOut() {
