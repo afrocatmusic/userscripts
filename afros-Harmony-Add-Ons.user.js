@@ -4,7 +4,7 @@
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/afros-Harmony-Add-Ons.user.js
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-Harmony-Add-Ons.user.js
 // @match       https://harmony.pulsewidth.org.uk/release?*
-// @version     1.0
+// @version     1.1
 // @author      afro
 // @grant       GM_setClipboard
 // @grant       GM.setClipboard
@@ -13,20 +13,32 @@
 // @require     https://raw.githubusercontent.com/jpillora/notifyjs/refs/heads/master/dist/notify.js
 // ==/UserScript==
 
+async function writeClipboardText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (error) {
+      console.error(error.message);
+    }
+}
+function showCopyNotif() {
+  $.notify('Copied!',{autoHideDelay:'1500', className:'success', position:'bottom'});
+}
+
 function addSearchLinks(){
   var separator = document.createTextNode(' | ');
 //deal with VA
+  let relArtist = '';
   if ($('.artist-credit')[0].childElementCount < 5) {
-        var relArtist = $('.release-artist')[0].textContent.slice(3).replaceAll('&','%26').replaceAll('/',' ');
+        relArtist = $('.release-artist')[0].textContent.slice(3).replaceAll('&','%26').replaceAll('/',' ');
     } else {
-        var relArtist = 'Various Artists';
+        relArtist = 'Various Artists';
     }
   var relTitle = $('.release-title')[0].textContent.replaceAll('&','%26').replaceAll('/',' ');
 //YTM barcode lookup
   var allHeaders = $('th');
   var headerNames = [];
   for (var i = 0; i < allHeaders.length; i++) {
-      headerNames.push(allHeaders[i].innerText);
+    headerNames.push(allHeaders[i].innerText);
   }
   var gtinIndex = headerNames.indexOf('GTIN');
   var barcodeArea = $('th')[gtinIndex];
@@ -117,21 +129,10 @@ function copyLinks(){
       extAnchor.textContent = 'External links';
       extAnchor.title = 'Click to copy external links';
       extAnchor.addEventListener("click", () => writeClipboardText(links));
-        async function writeClipboardText(text) {
-            try {
-              await navigator.clipboard.writeText(text);
-            } catch (error) {
-              console.error(error.message);
-            }
-          }
       exLiArea.innerText = '';
       exLiArea.appendChild(extAnchor);
       extAnchor.setAttribute('style', 'cursor: pointer; text-decoration: underline dotted; color: white;');
       extAnchor.addEventListener("click", () => showCopyNotif());
-        function showCopyNotif() {
-          $.notify('Copied!',{ autoHideDelay:'1500', className:'success', position:'bottom'});
-        }
-
       extAnchor.onmouseover = function() {mouseOver();};
       extAnchor.onmouseout = function() {mouseOut();};
         function mouseOver() {
@@ -157,18 +158,8 @@ function copyBarcode(){
       barcodeAnchor.title = 'Click to copy';
   var copyableAreas = [barcodeArea, barcodeArea.nextElementSibling]; //make the whole area clickable
       copyableAreas.forEach(function(elem){
-        elem.addEventListener("click", () => writeClipboardTextBarcode(barcode));
-          async function writeClipboardTextBarcode(text) {
-            try {
-              await navigator.clipboard.writeText(text);
-            } catch (error) {
-              console.error(error.message);
-            }
-          }
-        elem.addEventListener("click", () => showCopyNotif()); //and also give notif
-        function showCopyNotif() {
-          $.notify('Copied!',{ autoHideDelay:'1500', className:'success', position:'bottom'});
-        }
+        elem.addEventListener("click", () => writeClipboardText(barcode));
+        elem.addEventListener("click", () => showCopyNotif());
         });
       barcodeArea.innerText = '';
       barcodeArea.appendChild(barcodeAnchor);
@@ -199,53 +190,43 @@ function copyCountries() {
       var unavailArea = $('th')[unavailIndex];
           unavailArea.setAttribute('style','background: rgba(22, 45, 171, 0.3); padding: 1em;');
       var expandButton = unavailArea.nextElementSibling.querySelector('button');
-          if( expandButton === null ){return;} else {
-              expandButton.click(); //make sure list is expanded by default
+          if (expandButton === null) {return;}
+          else {
+            expandButton.click(); //make sure list is expanded by default
           }
       var unavailableCountries;
       var unavailAnchor = document.createElement('a');
           unavailAnchor.textContent = 'Unavailability';
           unavailAnchor.setAttribute('style','text-decoration: underline dotted;');
           unavailAnchor.title = 'Click to copy';
-          unavailAnchor.addEventListener("click", () => writeClipboardTextBarcode(unavailableCountries));
-            async function writeClipboardTextBarcode(text) {
-              try {
-                await navigator.clipboard.writeText(text);
-              } catch (error) {
-                console.error(error.message);
-              }
-            }
+          unavailAnchor.addEventListener("click", () => writeClipboardText(unavailableCountries));
           unavailArea.innerText = '';
           unavailArea.appendChild(unavailAnchor);
           unavailAnchor.setAttribute('style', 'cursor: pointer; text-decoration: underline dotted; color: white;');
           unavailAnchor.addEventListener("click", () => showCopyNotif());
-            function showCopyNotif() {
-              $.notify('Copied!',{ autoHideDelay:'1500', className:'success', position:'bottom'});
-            }
           unavailAnchor.onmouseover = function() {mouseOver();};
           unavailAnchor.onmouseout = function() {mouseOut();};
             function mouseOver() {
               unavailAnchor.style.color = "#add8e6";
-              unavailableCountries = 'Unavailable in these regions, as of '+today+':\n' + unavailArea.nextElementSibling.textContent.replaceAll(')',')\n').replace(/\n.*$/, '').replaceAll('(Keeling)\n Islands','(Keeling) Islands');
-              }
+              if (unavailArea.nextElementSibling.innerText.split('\n').length > 30) {
+                unavailableCountries = 'Unavailable in these regions, as of '+today+':\n' + unavailArea.nextElementSibling.innerText
+                  .replace(/(.*regionsCollapse)/gm,'')
+                  .replace(/^(.*)\n(.*)\n(.*)/gm,'$1 $2 $3')
+                  .replace(/ $/gm,'');
+                } else {
+                  unavailableCountries = 'Unavailable in these regions, as of '+today+':\n' + unavailArea.nextElementSibling.innerText.replace(/(.*regionsCollapse)/gm,'');
+                }
+            }
             function mouseOut() {
               unavailAnchor.style.color = "white";
               }
   }
 }
-
 function copyPermalink() {
   var permaLink = $('p.center > a')[0];
   var permaLinkURL = permaLink.href;
       permaLink.href = "javascript:void(0);";
-      permaLink.addEventListener("click", () => writeClipboardTextBarcode(permaLinkURL));
-        async function writeClipboardTextBarcode(text) {
-          try {
-            await navigator.clipboard.writeText(text);
-          } catch (error) {
-            console.error(error.message);
-          }
-        }
+      permaLink.addEventListener("click", () => writeClipboardText(permaLinkURL));
 }
 
 window.setTimeout(function() {
