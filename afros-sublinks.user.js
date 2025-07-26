@@ -7,7 +7,7 @@
 // @match       https://beta.musicbrainz.org/*
 // @match       https://musicbrainz.eu/*
 // @grant       none
-// @version     0.4
+// @version     0.5
 // @author      afro
 // @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -55,17 +55,19 @@ function generateLinkList(hoveredURL) {
     'release/': ['/discids','/cover-art','/aliases','/tags','/details','/edit','/edit-relationships','/open_edits','/edits'],
     'release-group/': ['/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
     'work/': ['/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
+    'area/': ['/artists','/events','/labels','/releases','/recordings','/places','/users','/works','/aliases','/tags','/details','/open_edits','/edits'],
+    'url/': ['/edit','/open_edits','/edits'],
     'label/': ['/relationships','/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits']
   };
 
-  for (const type in patterns) {
-    if (hoveredURL.includes(type)) {
-      links = patterns[type].map(suffix => {
+  for (const entity in patterns) {
+    if (hoveredURL.includes(entity)) {
+      links = patterns[entity].map(suffix => {
         const li = document.createElement('li');
         const a = document.createElement('a');
           a.href = hoveredURL + suffix;
           a.textContent = suffix.replace('/', '');
-        let aTextMap = new Map([
+        let aTextMap = new Map([ //name of menu options
           ['releases','Releases'],
           ['recordings','Recordings'],
           ['works','Works'],
@@ -81,7 +83,12 @@ function generateLinkList(hoveredURL) {
           ['edits','History'],
           ['fingerprints','Fingerprints'],
           ['discids','Disc IDs'],
+          ['area','Area'],
           ['cover-art','Cover art'],
+          ['artists','Artists'],
+          ['labels','Labels'],
+          ['places','Places'],
+          ['users','Users'],
         ]);
         if(aTextMap.has(a.textContent)) {
           a.textContent = aTextMap.get(suffix.replace('/',''));
@@ -109,49 +116,69 @@ function createMovableContainer() {
 }
 createMovableContainer();
 
-function getOffset(el) {
-  const rect = el.getBoundingClientRect();
-  return {
-    left: rect.left + window.scrollX,
-    top: rect.top + window.scrollY
-  };
-}
 let hoveredObject = null;
-
+let processedLinks = new Set();
+let mouseX = 0;
+let mouseY = 0;
 function openSublinks() {
-//regex still not perfect
-  const regexMatch = /musicbrainz\.org\/(?:artist|recording|release|release-group|work|label)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
+  const regexMatch = /musicbrainz\.org\/(?:artist|recording|release|release-group|work|label|area|url)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
   document.querySelectorAll('a').forEach(link => {
-    if (regexMatch.test(link.href)) {
-      link.addEventListener('mouseenter', () => {
-        hoveredObject = link;
+    if (regexMatch.test(link.href) && !processedLinks.has(link)) {
+      processedLinks.add(link);
+      link.addEventListener('mouseenter', (e) => {
+          hoveredObject = link;
+          mouseX = e.pageX;
+          mouseY = e.pageY;
+        function updateMousePos(event) {
+          mouseX = event.pageX;
+          mouseY = event.pageY;
+        }
+        link.addEventListener('mousemove', updateMousePos);
+        link.addEventListener('mouseleave', () => {
+          hoveredObject = null;
+          link.removeEventListener('mousemove', updateMousePos);
+        }, {once: true});
       });
-      link.addEventListener('mouseleave', () => {
-        hoveredObject = null;
-      });
-    }
-  });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Shift' && hoveredObject) {
-      let container = document.getElementById('sublinksContainer');
-      let list = document.getElementById('linkList');
-          list.innerHTML = '';
-          //hoveredObject.append(container);
-          container.style.display = 'block';
-          container.style.left = getOffset(hoveredObject).left + 15 + 'px';
-          container.style.top = getOffset(hoveredObject).top + 20 + 'px';
-      let listItems = generateLinkList(hoveredObject.href);
-          listItems.forEach(item => linkList.appendChild(item));
-    }
-  });
-  document.addEventListener('click', (event) => { //close div if click outside
-    if (!event.target.closest('.sublinksContainer')) {
-      document.getElementById('sublinksContainer').style.display = 'none';
-      let linkList = $('#linkList');
-          linkList.empty();
     }
   });
 }
-window.setTimeout(openSublinks,20);
+openSublinks();
 
-
+// --- global listeners ---
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Shift' && hoveredObject) {
+    let container = document.getElementById('sublinksContainer');
+    let list = document.getElementById('linkList');
+        list.innerHTML = '';
+        container.style.display = 'block';
+        container.style.left = mouseX + 'px';
+        container.style.top = mouseY + 'px';
+    let listItems = generateLinkList(hoveredObject.href);
+        listItems.forEach(item => linkList.appendChild(item));
+  }
+});
+document.addEventListener('click', (event) => { //close div if click outside
+  if (!event.target.closest('.sublinksContainer')) {
+    document.getElementById('sublinksContainer').style.display = 'none';
+    let linkList = $('#linkList');
+        linkList.empty();
+  }
+});
+// --- mutation observer
+const targetNode = $('#page')[0];
+const config = {childList: true, subtree: true};
+const callback = (mutationList, observer) => {
+  for (const mutation of mutationList) {
+    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType === 1) {
+          if (node.tagName === 'A' || node.querySelectorAll('a').length > 0) {
+            openSublinks();
+          }
+        }
+      });
+    }
+  }
+}
+const observer = new MutationObserver(callback);
+      observer.observe(targetNode, config);
