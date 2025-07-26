@@ -37,7 +37,7 @@ I recommend using this script instead of [Harmony Youtube Music Lookup](https://
   
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/cb8960ee-07e9-4458-8e87-19810cde606e" />
 
-### [afro's sublinks](https://github.com/afrocatmusic/userscripts/blob/main/afros-sublinks.user.js) (beta)  
+### [afro's sublinks](https://github.com/afrocatmusic/userscripts/blob/main/afros-sublinks.user.js)  
 Hover over a [MusicBrainz entity link](https://musicbrainz.org/doc/MusicBrainz_Entity) and press `Shift` to open a sublinks menu.  
   
 <img width="231" height="288" alt="image" src="https://github.com/user-attachments/assets/b2d92e31-06b2-41de-a08b-98fa8d642675" />
