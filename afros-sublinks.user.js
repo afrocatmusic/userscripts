@@ -12,9 +12,6 @@
 // @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
-
-//to do: use mutationobserver for dynamically generated links
-//eg. MusicBrainz: Expand/collapse release groups
 function css() {
   let head = document.getElementsByTagName('head')[0];
   if (head) {
@@ -40,7 +37,6 @@ function css() {
     padding: 0px;
     margin: 2px;
     }
-
       `;
     head.appendChild(style);
     }
@@ -143,7 +139,6 @@ function openSublinks() {
   });
 }
 openSublinks();
-
 // --- global listeners ---
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Shift' && hoveredObject) {
