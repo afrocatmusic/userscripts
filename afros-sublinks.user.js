@@ -151,8 +151,8 @@ document.addEventListener('keydown', (event) => {
     let list = document.getElementById('linkList');
         list.innerHTML = '';
         container.style.display = 'block';
-        container.style.left = mouseX + 'px';
-        container.style.top = mouseY + 'px';
+        container.style.left = mouseX + 10 + 'px';
+        container.style.top = mouseY + 10 + 'px';
     let listItems = generateLinkList(hoveredObject.href);
         listItems.forEach(item => linkList.appendChild(item));
   }
