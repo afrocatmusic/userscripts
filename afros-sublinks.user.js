@@ -167,7 +167,7 @@ let processedLinks = new Set();
 let mouseX = 0;
 let mouseY = 0;
 function openSublinks() {
-  const regexMatch = /musicbrainz\.org\/(?:artist|recording|release|release-group|work|label|area|url)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
+  const regexMatch = /musicbrainz\.(org|eu)\/(?:artist|recording|release|release-group|work|label|area|url)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
   document.querySelectorAll('a').forEach(link => {
     if (regexMatch.test(link.href) && !processedLinks.has(link)) {
       processedLinks.add(link);
