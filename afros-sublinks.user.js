@@ -7,7 +7,7 @@
 // @match       https://beta.musicbrainz.org/*
 // @match       https://musicbrainz.eu/*
 // @grant       none
-// @version     0.5
+// @version     0.6
 // @author      afro
 // @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -32,16 +32,66 @@ function css() {
       transition: 0.075s;
     }
     .sublinksContainer > ul {
-    font-style: initial;
-    list-style: none;
-    padding: 0px;
-    margin: 2px;
+      font-style: initial;
+      list-style: none;
+      padding: 0px;
+      margin: 2px;
+    }
+    .svg-container {
+      display: inline-block;
+      padding: 1em 10px 0;
+      float: right;
+    }
+    .sublinksContainer.tooltip {
+      position: fixed;
+      opacity: 0;
+      transition: opacity 0.2s;
+      white-space: pre-line;
+      pointer-events: none;
+      font-size: 80%;
+      text-align: center;
+    }
+    .sublinksContainer.tooltip.visible {
+      opacity: 1;
     }
       `;
     head.appendChild(style);
     }
 }
 css();
+function addSublinksLogo() {
+  // from https://www.svgrepo.com/svg/532198/list-ul-alt
+  const svgIcon = `
+    <svg width="15px" height="15px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51M4 6C4 6.27614 3.77614 6.5 3.5 6.5C3.22386 6.5 3 6.27614 3 6C3 5.72386 3.22386 5.5 3.5 5.5C3.77614 5.5 4 5.72386 4 6ZM4 12C4 12.2761 3.77614 12.5 3.5 12.5C3.22386 12.5 3 12.2761 3 12C3 11.7239 3.22386 11.5 3.5 11.5C3.77614 11.5 4 11.7239 4 12ZM4 18C4 18.2761 3.77614 18.5 3.5 18.5C3.22386 18.5 3 18.2761 3 18C3 17.7239 3.22386 17.5 3.5 17.5C3.77614 17.5 4 17.7239 4 18Z"
+            stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  const svgContainer = document.createElement('div');
+    svgContainer.innerHTML = svgIcon;
+    svgContainer.setAttribute('class', 'svg-container');
+  const area = $('.menu')[1];
+    area.append(svgContainer);
+// tooltip div
+  const tooltipDiv = document.createElement('div');
+    tooltipDiv.setAttribute('class', 'sublinksContainer tooltip');
+    tooltipDiv.style.display = 'block';
+    tooltipDiv.textContent = "afro's sublinks is active\nHover over a link and press shift!";
+  document.body.appendChild(tooltipDiv)
+  svgContainer.addEventListener('mouseover', (event) => {
+    tooltipDiv.classList.add('visible');
+  });
+  svgContainer.addEventListener('mousemove', (event) => {
+    const offsetX = -170;
+    const offsetY = -20;
+    tooltipDiv.style.left = `${svgContainer.getBoundingClientRect().left + offsetX}px`;
+    tooltipDiv.style.top = `${event.clientY + offsetY}px`;
+  });
+  svgContainer.addEventListener('mouseleave', () => {
+    tooltipDiv.classList.remove('visible');
+  });
+}
+addSublinksLogo();
 
 function generateLinkList(hoveredURL) {
   let links = [];
@@ -90,7 +140,7 @@ function generateLinkList(hoveredURL) {
           a.textContent = aTextMap.get(suffix.replace('/',''));
         }
           a.target = '_self';
-          li.appendChild(a);
+          li.append(document.createTextNode('• '), a);
         return li;
       });
       break;
