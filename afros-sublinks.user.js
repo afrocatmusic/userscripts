@@ -3,11 +3,10 @@
 // @namespace   https://github.com/afrocatmusic/userscripts
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
-// @match       https://musicbrainz.org/*
-// @match       https://beta.musicbrainz.org/*
-// @match       https://musicbrainz.eu/*
+// @match       *://*.musicbrainz.org/*
+// @match       *://musicbrainz.eu/*
 // @grant       none
-// @version     0.6
+// @version     0.6.1
 // @author      afro
 // @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js

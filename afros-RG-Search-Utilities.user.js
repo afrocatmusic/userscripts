@@ -3,13 +3,12 @@
 // @namespace   https://github.com/afrocatmusic/userscripts
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/afros-RG-Search-Utilities.user.js
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-RG-Search-Utilities.user.js
-// @match       *://musicbrainz.org/release-group/*
-// @match       *://beta.musicbrainz.org/release-group/*
+// @match       *://*.musicbrainz.org/release-group/*
 // @match       *://musicbrainz.eu/release-group/*
 // @exclude     /\/release-group\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\/(aliases|tags|details|edits|open_edits)/
 // @exclude     /\/release-group\/add/
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
-// @version     1.0
+// @version     1.0.1
 // @author      afro
 // @description Adds buttons to find the current release group in various websites
 // ==/UserScript==
