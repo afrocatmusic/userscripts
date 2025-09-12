@@ -3,8 +3,7 @@
 // @namespace   https://github.com/afrocatmusic/userscripts
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/MBz-Copy-URLs.user.js
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/MBz-Copy-URLs.user.js
-// @match       *://musicbrainz.org/release/*
-// @match       *://beta.musicbrainz.org/release/*
+// @match       *://*.musicbrainz.org/release/*
 // @match       *://musicbrainz.eu/release/*
 // @exclude     /\/release\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\/(discids|cover-art|aliases|tags|details|edit|edit-relationships|delete|change-quality|edits|open_edits)/
 // @exclude     /\/release\/add/
@@ -12,7 +11,7 @@
 // @grant       GM.setClipboard
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require     https://raw.githubusercontent.com/jpillora/notifyjs/refs/heads/master/dist/notify.js
-// @version     1.3
+// @version     1.3.1
 // @author      afro
 // @description Adds a button to copy all URL relationships, and makes the barcode field on the sidebar copyable
 // ==/UserScript==

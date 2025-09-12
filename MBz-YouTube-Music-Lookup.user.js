@@ -2,13 +2,12 @@
 // @name        MBz YouTube Music Lookup
 // @namespace   https://github.com/afrocatmusic/userscripts
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/MBz-YouTube-Music-Lookup.user.js
-// @match       *://musicbrainz.org/release/*
-// @match       *://beta.musicbrainz.org/release/*
+// @match       *://*.musicbrainz.org/release/*
 // @match       *://musicbrainz.eu/release/*
 // @exclude     /\/release\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\/(discids|cover-art|aliases|tags|details|edit|edit-relationships|delete|change-quality|edits|open_edits)/
 // @exclude     /\/release\/add/
 // @grant       none
-// @version     1.2
+// @version     1.2.1
 // @author      afro
 // @description Add a YouTube Music Lookup button
 // @run-at      document-idle
