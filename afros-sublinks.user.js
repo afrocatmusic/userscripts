@@ -5,8 +5,10 @@
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match       *://*.musicbrainz.org/*
 // @match       *://musicbrainz.eu/*
+// @exclude     https://*/release/add
+// @exclude     https://musicbrainz.*/oauth2/authorize*
 // @grant       none
-// @version     0.6.1
+// @version     0.7
 // @author      afro
 // @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -55,9 +57,10 @@ function css() {
     }
       `;
     head.appendChild(style);
-    }
+  }
 }
 css();
+
 function addSublinksLogo() {
   // from https://www.svgrepo.com/svg/532198/list-ul-alt
   const svgIcon = `
@@ -76,8 +79,9 @@ function addSublinksLogo() {
     tooltipDiv.setAttribute('class', 'sublinksContainer tooltip');
     tooltipDiv.style.display = 'block';
     tooltipDiv.textContent = "afro's sublinks is active\nHover over a link and press shift!";
-  document.body.appendChild(tooltipDiv)
-  svgContainer.addEventListener('mouseover', (event) => {
+  document.body.appendChild(tooltipDiv);
+
+  svgContainer.addEventListener('mouseover', () => {
     tooltipDiv.classList.add('visible');
   });
   svgContainer.addEventListener('mousemove', (event) => {
@@ -162,35 +166,35 @@ function createMovableContainer() {
 createMovableContainer();
 
 let hoveredObject = null;
-let processedLinks = new Set();
 let mouseX = 0;
 let mouseY = 0;
-function openSublinks() {
-  const regexMatch = /musicbrainz\.(org|eu)\/(?:artist|recording|release|release-group|work|label|area|url)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
-  document.querySelectorAll('a').forEach(link => {
-    if (regexMatch.test(link.href) && !processedLinks.has(link)) {
-      processedLinks.add(link);
-      link.addEventListener('mouseenter', (e) => {
-          hoveredObject = link;
-          mouseX = e.pageX;
-          mouseY = e.pageY;
-        function updateMousePos(event) {
-          mouseX = event.pageX;
-          mouseY = event.pageY;
-        }
-        link.addEventListener('mousemove', updateMousePos);
-        link.addEventListener('mouseleave', () => {
-          hoveredObject = null;
-          link.removeEventListener('mousemove', updateMousePos);
-        }, {once: true});
-      });
-    }
-  });
-}
-openSublinks();
-// --- global listeners ---
+const regexMatch = /musicbrainz\.(org|eu)\/(?:artist|recording|release|release-group|work|label|area|url)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
+
+// event listeners at document level
+document.addEventListener('mouseover', (e) => {
+  const link = e.target.closest('a');
+  if (link && regexMatch.test(link.href)) {
+    hoveredObject = link;
+  } else {
+    hoveredObject = null; // reset on non-MB links
+  }
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (hoveredObject) {
+    mouseX = e.pageX;
+    mouseY = e.pageY;
+  }
+});
+
+document.addEventListener('mouseleave', (e) => {
+  if (e.target.closest('a') === hoveredObject) {
+    hoveredObject = null;
+  }
+});
+
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Shift' && hoveredObject) {
+  if (event.key === 'Shift' && hoveredObject && regexMatch.test(hoveredObject.href)) {
     let container = document.getElementById('sublinksContainer');
     let list = document.getElementById('linkList');
         list.innerHTML = '';
@@ -198,9 +202,10 @@ document.addEventListener('keydown', (event) => {
         container.style.left = mouseX + 10 + 'px';
         container.style.top = mouseY + 10 + 'px';
     let listItems = generateLinkList(hoveredObject.href);
-        listItems.forEach(item => linkList.appendChild(item));
+        listItems.forEach(item => list.appendChild(item));
   }
 });
+
 document.addEventListener('click', (event) => { //close div if click outside
   if (!event.target.closest('.sublinksContainer')) {
     document.getElementById('sublinksContainer').style.display = 'none';
@@ -208,21 +213,3 @@ document.addEventListener('click', (event) => { //close div if click outside
         linkList.empty();
   }
 });
-// --- mutation observer
-const targetNode = $('#page')[0];
-const config = {childList: true, subtree: true};
-const callback = (mutationList, observer) => {
-  for (const mutation of mutationList) {
-    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-      mutation.addedNodes.forEach(node => {
-        if (node.nodeType === 1) {
-          if (node.tagName === 'A' || node.querySelectorAll('a').length > 0) {
-            openSublinks();
-          }
-        }
-      });
-    }
-  }
-}
-const observer = new MutationObserver(callback);
-      observer.observe(targetNode, config);
