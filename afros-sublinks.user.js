@@ -8,7 +8,7 @@
 // @exclude     https://*/release/add
 // @exclude     https://musicbrainz.*/oauth2/authorize*
 // @grant       none
-// @version     0.7
+// @version     0.7.1
 // @author      afro
 // @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -188,7 +188,7 @@ document.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('mouseleave', (e) => {
-  if (e.target.closest('a') === hoveredObject) {
+  if (e.target.parentNode !== null && e.target.closest('a') === hoveredObject) {
     hoveredObject = null;
   }
 });
