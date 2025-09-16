@@ -5,10 +5,9 @@
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match       *://*.musicbrainz.org/*
 // @match       *://musicbrainz.eu/*
-// @exclude     https://*/release/add
 // @exclude     https://musicbrainz.*/oauth2/authorize*
 // @grant       none
-// @version     0.7.1
+// @version     0.7.2
 // @author      afro
 // @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -62,6 +61,8 @@ function css() {
 css();
 
 function addSublinksLogo() {
+  if (window.location.href.search(/release\/add$/g) > -1 && $('h1')[0].textContent === 'Confirm form submission') {return;}
+
   // from https://www.svgrepo.com/svg/532198/list-ul-alt
   const svgIcon = `
     <svg width="15px" height="15px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
