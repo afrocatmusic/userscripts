@@ -1,17 +1,18 @@
 // ==UserScript==
-// @name        afro's sublinks
-// @namespace   https://github.com/afrocatmusic/userscripts
-// @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
-// @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
-// @match       *://*.musicbrainz.org/*
-// @match       *://musicbrainz.eu/*
-// @exclude     https://musicbrainz.*/oauth2/authorize*
-// @grant       none
-// @version     0.7.2
-// @author      afro
-// @description Mouse over a MB entity link and press shift to open a menu with useful shortcuts
-// @require     https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
+// @name         afro's sublinks
+// @namespace    https://github.com/afrocatmusic/userscripts
+// @updateURL    https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
+// @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
+// @match        *://*.musicbrainz.org/*
+// @match        *://musicbrainz.eu/*
+// @exclude      https://musicbrainz.*/oauth2/authorize*
+// @grant        none
+// @version      0.8.0
+// @author       afro
+// @description  Mouse over links and press shift to open a menu with useful shortcuts
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
 // ==/UserScript==
+
 function css() {
   let head = document.getElementsByTagName('head')[0];
   if (head) {
@@ -20,6 +21,7 @@ function css() {
     style.textContent = `
     .sublinksContainer {
       width: max-content;
+      max-width: 20em;
       height: max-content;
       backdrop-filter: blur(3px);
       filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.2));
@@ -54,6 +56,42 @@ function css() {
     .sublinksContainer.tooltip.visible {
       opacity: 1;
     }
+    .sublinksContainer hr {
+      opacity: 0.5;
+    }
+    .sublinksContainer > div {
+      max-width: 10em;
+    }
+    .sublinks-header-text {
+      user-select: none;
+      display: inline-block;
+      max-width: 15em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sublinks-header-text-wrapper {
+      display: inline-block;
+      max-width: 15em;
+      vertical-align: middle;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+    .sublinks-header-text {
+      display: inline-block;
+      white-space: nowrap;
+      font-weight: bold;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      vertical-align: middle;
+      transition: transform linear;
+      will-change: transform;
+    }
+    .sublinks-header-text-wrapper:hover .sublinks-header-text {
+      overflow: visible;
+      text-overflow: clip;
+    }
       `;
     head.appendChild(style);
   }
@@ -61,7 +99,8 @@ function css() {
 css();
 
 function addSublinksLogo() {
-  if (window.location.href.search(/release\/add$/g) > -1 && $('h1')[0].textContent === 'Confirm form submission') {return;}
+  //prevent unstyled text when not logged in
+  if ($('.menu > li')[0].textContent === 'Log in') { return; }
 
   // from https://www.svgrepo.com/svg/532198/list-ul-alt
   const svgIcon = `
@@ -71,23 +110,24 @@ function addSublinksLogo() {
     </svg>
   `;
   const svgContainer = document.createElement('div');
-    svgContainer.innerHTML = svgIcon;
-    svgContainer.setAttribute('class', 'svg-container');
+  svgContainer.innerHTML = svgIcon;
+  svgContainer.setAttribute('class', 'svg-container');
   const area = $('.menu')[1];
-    area.append(svgContainer);
-// tooltip div
+  area.append(svgContainer);
+  // tooltip div
   const tooltipDiv = document.createElement('div');
-    tooltipDiv.setAttribute('class', 'sublinksContainer tooltip');
-    tooltipDiv.style.display = 'block';
-    tooltipDiv.textContent = "afro's sublinks is active\nHover over a link and press shift!";
+  tooltipDiv.setAttribute('class', 'sublinksContainer tooltip');
+  tooltipDiv.style.display = 'block';
+  tooltipDiv.textContent = 'afro\'s sublinks is active\nHover over a link and press shift!';
   document.body.appendChild(tooltipDiv);
 
   svgContainer.addEventListener('mouseover', () => {
     tooltipDiv.classList.add('visible');
   });
   svgContainer.addEventListener('mousemove', (event) => {
-    const offsetX = -170;
-    const offsetY = -20;
+    //sublinks window position offset
+    const offsetX = -170; //px to the right
+    const offsetY = -20; //px down
     tooltipDiv.style.left = `${svgContainer.getBoundingClientRect().left + offsetX}px`;
     tooltipDiv.style.top = `${event.clientY + offsetY}px`;
   });
@@ -100,51 +140,127 @@ addSublinksLogo();
 function generateLinkList(hoveredURL) {
   let links = [];
   const patterns = {
-    'artist/': ['/releases','/recordings','/works','/events','/relationships','/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
-    'recording/': ['/fingerprints','/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
-    'release/': ['/discids','/cover-art','/aliases','/tags','/details','/edit','/edit-relationships','/open_edits','/edits'],
-    'release-group/': ['/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
-    'work/': ['/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits'],
-    'area/': ['/artists','/events','/labels','/releases','/recordings','/places','/users','/works','/aliases','/tags','/details','/open_edits','/edits'],
-    'url/': ['/edit','/open_edits','/edits'],
-    'label/': ['/relationships','/aliases','/tags','/ratings','/details','/edit','/open_edits','/edits']
+    'artist/': [
+      '/releases',
+      '/recordings',
+      '/works',
+      '/events',
+      '/relationships',
+      '/aliases',
+      '/tags',
+      '/ratings',
+      '/details',
+      '/edit',
+      '/open_edits',
+      '/edits',
+    ],
+    'recording/': [
+      '/fingerprints',
+      '/aliases',
+      '/tags',
+      '/ratings',
+      '/details',
+      '/edit',
+      '/open_edits',
+      '/edits',
+    ],
+    'release/': [
+      '/discids',
+      '/cover-art',
+      '/aliases',
+      '/tags',
+      '/details',
+      '/edit',
+      '/edit-relationships',
+      '/open_edits',
+      '/edits',
+    ],
+    'release-group/': [
+      '/aliases',
+      '/tags',
+      '/ratings',
+      '/details',
+      '/edit',
+      '/open_edits',
+      '/edits',
+    ],
+    'work/': [
+      '/aliases',
+      '/tags',
+      '/ratings',
+      '/details',
+      '/edit',
+      '/open_edits',
+      '/edits',
+    ],
+    'area/': [
+      '/artists',
+      '/events',
+      '/labels',
+      '/releases',
+      '/recordings',
+      '/places',
+      '/users',
+      '/works',
+      '/aliases',
+      '/tags',
+      '/details',
+      '/open_edits',
+      '/edits',
+    ],
+    'url/': [
+      '/edit',
+      '/open_edits',
+      '/edits'
+    ],
+    'label/': [
+      '/relationships',
+      '/aliases',
+      '/tags',
+      '/ratings',
+      '/details',
+      '/edit',
+      '/open_edits',
+      '/edits',
+    ],
   };
 
   for (const entity in patterns) {
     if (hoveredURL.includes(entity)) {
-      links = patterns[entity].map(suffix => {
+      links = patterns[entity].map((suffix) => {
         const li = document.createElement('li');
         const a = document.createElement('a');
-          a.href = hoveredURL + suffix;
-          a.textContent = suffix.replace('/', '');
-        let aTextMap = new Map([ //name of menu options
-          ['releases','Releases'],
-          ['recordings','Recordings'],
-          ['works','Works'],
-          ['events','Events'],
-          ['relationships','Relationships'],
-          ['aliases','Aliases'],
-          ['tags','Tags'],
-          ['ratings','Ratings'],
-          ['details','Details'],
-          ['edit','Edit'],
-          ['edit-relationships','Edit rels.'],
-          ['open_edits','Open edits'],
-          ['edits','History'],
-          ['fingerprints','Fingerprints'],
-          ['discids','Disc IDs'],
-          ['area','Area'],
-          ['cover-art','Cover art'],
-          ['artists','Artists'],
-          ['labels','Labels'],
-          ['places','Places'],
-          ['users','Users'],
+        a.href = hoveredURL + suffix;
+        a.textContent = suffix.replace('/', '');
+        let aTextMap = new Map([
+          //name of menu options
+          ['releases', 'Releases'],
+          ['recordings', 'Recordings'],
+          ['works', 'Works'],
+          ['events', 'Events'],
+          ['relationships', 'Relationships'],
+          ['aliases', 'Aliases'],
+          ['tags', 'Tags'],
+          ['ratings', 'Ratings'],
+          ['details', 'Details'],
+          ['edit', 'Edit'],
+          ['edit-relationships', 'Edit rels.'],
+          ['open_edits', 'Open edits'],
+          ['edits', 'History'],
+          ['fingerprints', 'Fingerprints'],
+          ['discids', 'Disc IDs'],
+          ['area', 'Area'],
+          ['cover-art', 'Cover art'],
+          ['artists', 'Artists'],
+          ['labels', 'Labels'],
+          ['places', 'Places'],
+          ['users', 'Users'],
         ]);
-        if(aTextMap.has(a.textContent)) {
-          a.textContent = aTextMap.get(suffix.replace('/',''));
+        if (aTextMap.has(a.textContent)) {
+          a.textContent = aTextMap.get(suffix.replace('/', ''));
         }
-          a.target = '_self';
-          li.append(document.createTextNode('• '), a);
+        a.target = '_self';
+        li.append(document.createTextNode('• '), a);
         return li;
       });
       break;
@@ -153,31 +269,86 @@ function generateLinkList(hoveredURL) {
   return links;
 }
 
+function matchDigitalStores(url) {
+  const stores = [
+    { name: 'spotify', regex: /https:\/\/open\.spotify\.com\/(?:intl-\w{2}\/)?album\/(\w{22})/, atisketKey: 'spf_id' },
+    { name: 'itunes', regex: /^https:\/\/(?:music\.|itunes\.)apple\.com\/\w{2}\/album(?:(?:.*)?)\/(?:id)?(\d*)/, atisketKey: 'itu_id' },
+    { name: 'deezer', regex: /^https?:\/\/.*deezer\.com\/(?:\w{2}\/)?album\/(\d*)/, atisketKey: 'deez_id' },
+    { name: 'beatport', regex: /^https?:\/\/.*beatport\.com\/release\/.*\/(\d*)/ },
+    { name: 'tidal', regex: /^https?:\/\/.*tidal\.com\/(?:browse\/)?album\/(\d*)/ },
+    { name: 'discogs', regex: /^.*discogs\.com\/release\/(\d+)(?:-.*|\/.*)?/ }
+  ];
+
+  for (const store of stores) {
+    const match = url.match(store.regex);
+    if (match) {
+      const uid = match[1];
+      const platform = store.name;
+      let headerPlatform = platform;
+
+      // change headerPlatform based on the subdomain for apple links
+      if (platform === 'itunes' && url.includes('music.apple.com')) {
+        headerPlatform = 'applemusic';
+      }
+
+      let links = [];
+
+      if (platform === 'discogs') { //deal with discogs
+        links.push({ href: `https://discogs.com/release/${uid}/history`, text: 'Show history' });
+      } else {
+        // Harmony for everything else
+        links.push({ href: `https://harmony.pulsewidth.org.uk/release?${platform}=${uid}&category=preferred`, text: 'Harmony' });
+      }
+
+      if (store.atisketKey) { // except if atisketKey exists, add atisket link
+        const atisketURL = `https://atisket.pulsewidth.org.uk/?${store.atisketKey}=${uid}`;
+        links.push({ href: atisketURL, text: 'a-tisket' });
+      }
+
+      return links.map(linkInfo => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = linkInfo.href;
+        a.textContent = linkInfo.text;
+        a.target = '_blank';
+        li.append('• ', a);
+        return li;
+      });
+    }
+  }
+
+  return [];
+}
+
 function createMovableContainer() {
   let sublinksContainer = document.createElement('div');
-      $('body')[0].append(sublinksContainer);
-      sublinksContainer.setAttribute('class','sublinksContainer');
-      sublinksContainer.setAttribute('id','sublinksContainer');
-      sublinksContainer.style.display = 'none';
+  $('body').append(sublinksContainer);
+  sublinksContainer.setAttribute('class', 'sublinksContainer');
+  sublinksContainer.setAttribute('id', 'sublinksContainer');
+  sublinksContainer.style.display = 'none';
 
   let list = document.createElement('ul');
-      list.setAttribute('id','linkList');
-      sublinksContainer.appendChild(list);
+  list.setAttribute('id', 'linkList');
+  sublinksContainer.appendChild(list);
 }
 createMovableContainer();
 
 let hoveredObject = null;
 let mouseX = 0;
 let mouseY = 0;
-const regexMatch = /musicbrainz\.(org|eu)\/(?:artist|recording|release|release-group|work|label|area|url)\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})($|\/)$/;
+
+const mbRegex = /musicbrainz\.(org|eu)\/.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const digitalStoreRegex = /open\.spotify\.com\/album|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/release/;
+
+const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
 
 // event listeners at document level
 document.addEventListener('mouseover', (e) => {
   const link = e.target.closest('a');
-  if (link && regexMatch.test(link.href)) {
+  if (link && combinedRegex.test(link.href)) {
     hoveredObject = link;
   } else {
-    hoveredObject = null; // reset on non-MB links
+    hoveredObject = null; // reset on non-matching links
   }
 });
 
@@ -194,23 +365,227 @@ document.addEventListener('mouseleave', (e) => {
   }
 });
 
+const entityHeaders = {
+  artist: { name: 'Artist', icon: 'artist.svg' },
+  release: { name: 'Release', icon: 'release.svg' },
+  recording: { name: 'Recording', icon: 'recording.svg' },
+  'release-group': { name: 'Release Group', icon: 'release_group.svg' },
+  work: { name: 'Work', icon: 'work.svg' },
+  area: { name: 'Area', icon: 'area.svg' },
+  url: { name: 'URL', icon: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Mismatch_finder_link_icon.png' },
+  label: { name: 'Label', icon: 'label.svg' },
+};
+
+const storeHeaders = {
+  spotify: { name: 'Spotify', icon: 'spotify-32.png' },
+  itunes: { name: 'iTunes', icon: 'itunes-16.png' },
+  'applemusic': { name: 'Apple Music', icon: 'applemusic-32.png' },
+  deezer: { name: 'Deezer', icon: 'deezer-32.png' },
+  beatport: { name: 'Beatport', icon: 'beatport-32.png' },
+  tidal: { name: 'Tidal', icon: 'tidal-32.png' },
+  discogs: { name: 'Discogs', icon: 'discogs-32.png' },
+};
+
+function getHeaderText(entity, text) {
+  const uuidPattern = '\\s(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})';
+  let result = '';
+
+  const entityNames = Object.keys(entityHeaders);
+
+  if (entityNames.includes(entity)) {
+    const regex = new RegExp(entity + uuidPattern);
+
+    if (text.search(regex) > -1) {
+      result = entityHeaders[entity].name;
+    }
+  }
+  return result;
+}
+
+function getMBHeaderContent(hoveredObject, entity, entityHeaders) {
+  const hoveredURL = hoveredObject.href;
+  const header = entityHeaders[entity];
+  let iconURL = `https://musicbrainz.org/static/images/entity/${header.icon}`;
+  let headerText = hoveredObject.textContent;
+
+  if (entity === 'url') { //deal with url entity
+    iconURL = header.icon;
+    headerText = header.name;
+  }
+  //deal with subheader RG text, "see all versions of this release..."
+  if (entity === 'release-group' && $(hoveredObject).parent().parent().hasClass('subheader')) {
+    headerText = 'Release group';
+  }
+
+  const newHeaderText = getHeaderText(entity, hoveredObject.textContent);
+  if (newHeaderText) {
+    headerText = newHeaderText;
+  }
+  return { icon: iconURL, text: headerText };
+}
+
+function getStoreHeaderContent(url) {
+  let storeKey = null;
+  //deal with apple stores first
+  if (url.includes('music.apple.com')) {
+    storeKey = 'applemusic';
+  }
+  else if (url.includes('itunes.apple.com')) {
+    storeKey = 'itunes';
+  }
+  else {
+    for (const store in storeHeaders) {
+      if (store === 'itunes' || store === 'applemusic') continue; //ignore apple, has been dealt with atp
+      if (url.includes(store)) {
+        storeKey = store;
+        break;
+      }
+    }
+  }
+  if (storeKey) {
+    const header = storeHeaders[storeKey];
+    const iconURL = `https://musicbrainz.org/static/images/external-favicons/${header.icon}`;
+    return { icon: iconURL, text: header.name }
+  }
+  return null; //if no store match
+}
+
+//animate the header text, scroll until the end of the string, pause for 2s, then reset and loop
+function headerScrollAnimation(headerWrapper, headerText) {
+  let timers = { start: null, end: null };
+  let hovering = false;
+
+  function clearTimers() {
+    if (timers.start) {
+      clearTimeout(timers.start);
+      timers.start = null;
+    }
+    if (timers.end) {
+      clearTimeout(timers.end);
+      timers.end = null;
+    }
+  }
+
+  function startScrollLoop() {
+    hovering = true;
+    clearTimers();
+    //reset transform
+    headerText.style.transition = 'none';
+    headerText.style.transform = 'translateX(0)';
+
+    timers.start = setTimeout(() => {
+      if (!hovering) { return };
+      const wrapperWidth = headerWrapper.clientWidth;
+      const textWidth = headerText.scrollWidth;
+      if (textWidth <= wrapperWidth + 1) {
+        return
+      }
+
+      const distance = textWidth - wrapperWidth;
+      const pxPerSecond = 40; // scroll speed
+      const durationMs = (distance / pxPerSecond) * 1000;
+
+      function animateOnce() {
+        if (!hovering) { return };
+        //set transition and move
+        headerText.style.transition = `transform ${durationMs}ms linear`;
+        //start the transform
+        requestAnimationFrame(() => {
+          headerText.style.transform = `translateX(-${distance}px)`;
+        });
+
+        timers.end = setTimeout(() => {
+          if (!hovering) { return };
+          headerText.style.transition = 'none';
+          headerText.style.transform = 'translateX(0)';
+
+          timers.start = setTimeout(() => {
+            animateOnce();
+          }, 50);
+        }, durationMs + 2000); //duration + 2s pause at the end
+      }
+
+      animateOnce();
+    }, 50);
+  }
+
+  function stopScrollLoop() {
+    hovering = false;
+    clearTimers();
+    //reset immediately
+    headerText.style.transition = 'none';
+    headerText.style.transform = 'translateX(0)';
+  }
+
+  headerWrapper.addEventListener('mouseenter', startScrollLoop);
+  headerWrapper.addEventListener('mouseleave', stopScrollLoop);
+}
+
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Shift' && hoveredObject && regexMatch.test(hoveredObject.href)) {
-    let container = document.getElementById('sublinksContainer');
-    let list = document.getElementById('linkList');
-        list.innerHTML = '';
-        container.style.display = 'block';
-        container.style.left = mouseX + 10 + 'px';
-        container.style.top = mouseY + 10 + 'px';
-    let listItems = generateLinkList(hoveredObject.href);
-        listItems.forEach(item => list.appendChild(item));
+  if (event.key === 'Shift' && hoveredObject && combinedRegex.test(hoveredObject.href)) {
+    let listItems = [];
+    const hoveredURL = hoveredObject.href;
+    let headerContent = null;
+
+    if (mbRegex.test(hoveredURL)) { //match MB entities
+      listItems = generateLinkList(hoveredURL);
+      for (const entity in entityHeaders) {
+        if (hoveredURL.includes(`/${entity}/`)) {
+          headerContent = getMBHeaderContent(hoveredObject, entity, entityHeaders)
+          break;
+        }
+      }
+    }
+    else if (digitalStoreRegex.test(hoveredURL)) { //match digital stores
+      listItems = matchDigitalStores(hoveredURL);
+      headerContent = getStoreHeaderContent(hoveredURL)
+    }
+
+    if (listItems.length > 0) {
+      let container = document.getElementById('sublinksContainer');
+      let list = document.getElementById('linkList');
+      list.innerHTML = '';
+      container.style.display = 'block';
+      container.style.left = mouseX + 10 + 'px';
+      container.style.top = mouseY + 10 + 'px';
+
+      if (headerContent) {
+        // scroll text
+        const headerDiv = document.createElement('div');
+        headerDiv.style.display = 'flex';
+        headerDiv.style.alignItems = 'center';
+
+        const headerIcon = document.createElement('img');
+        headerIcon.src = headerContent.icon;
+        headerIcon.style.height = '15px';
+        headerIcon.style.width = '15px';
+        headerIcon.style.marginRight = '5px';
+
+        const headerWrapper = document.createElement('div');
+        headerWrapper.className = 'sublinks-header-text-wrapper';
+
+        const headerText = document.createElement('span');
+        headerText.className = 'sublinks-header-text';
+        headerText.textContent = headerContent.text;
+
+        headerWrapper.appendChild(headerText);
+        headerDiv.appendChild(headerIcon);
+        headerDiv.appendChild(headerWrapper);
+        list.appendChild(headerDiv);
+        list.appendChild(document.createElement('hr'));
+
+        headerScrollAnimation(headerWrapper, headerText);
+      }
+      listItems.forEach((item) => list.appendChild(item));
+    }
   }
 });
 
-document.addEventListener('click', (event) => { //close div if click outside
+document.addEventListener('click', (event) => {
+  //close div if click outside
   if (!event.target.closest('.sublinksContainer')) {
     document.getElementById('sublinksContainer').style.display = 'none';
     let linkList = $('#linkList');
-        linkList.empty();
+    linkList.empty();
   }
 });
