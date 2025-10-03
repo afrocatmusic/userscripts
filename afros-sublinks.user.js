@@ -276,7 +276,7 @@ function matchDigitalStores(url) {
     { name: 'deezer', regex: /^https?:\/\/.*deezer\.com\/(?:\w{2}\/)?album\/(\d*)/, atisketKey: 'deez_id' },
     { name: 'beatport', regex: /^https?:\/\/.*beatport\.com\/release\/.*\/(\d*)/ },
     { name: 'tidal', regex: /^https?:\/\/.*tidal\.com\/(?:browse\/)?album\/(\d*)/ },
-    { name: 'discogs', regex: /^.*discogs\.com\/release\/(\d+)(?:-.*|\/.*)?/ }
+    { name: 'discogs', regex: /^https?:\/\/(?:www\.)?discogs\.com\/(?:.*)?release\/(\d+)(?:-.*|\/.*)?/ }
   ];
 
   for (const store of stores) {
@@ -338,7 +338,7 @@ let mouseX = 0;
 let mouseY = 0;
 
 const mbRegex = /musicbrainz\.(org|eu)\/.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const digitalStoreRegex = /open\.spotify\.com\/album|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/release/;
+const digitalStoreRegex = /open\.spotify\.com\/album|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release/;
 
 const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
 
