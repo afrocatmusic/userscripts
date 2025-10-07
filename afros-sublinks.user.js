@@ -7,7 +7,7 @@
 // @match        *://musicbrainz.eu/*
 // @exclude      https://musicbrainz.*/oauth2/authorize*
 // @grant        none
-// @version      0.8.0
+// @version      0.8.1
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -99,8 +99,8 @@ function css() {
 css();
 
 function addSublinksLogo() {
-  //prevent unstyled text when not logged in
-  if ($('.menu > li')[0].textContent === 'Log in') { return; }
+  //prevent unstyled text
+  if (!document.querySelectorAll('[src="/static/scripts/supported-browser-check.js"]')[0]) { return; } //doesn't work with jquery selector
 
   // from https://www.svgrepo.com/svg/532198/list-ul-alt
   const svgIcon = `
@@ -338,7 +338,7 @@ let mouseX = 0;
 let mouseY = 0;
 
 const mbRegex = /musicbrainz\.(org|eu)\/.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const digitalStoreRegex = /open\.spotify\.com\/album|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release/;
+const digitalStoreRegex = /spotify\.com\/(?:intl-\w{2}\/)?album\/|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release/;
 
 const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
 
