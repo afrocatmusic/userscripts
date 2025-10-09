@@ -7,7 +7,7 @@
 // @match        *://musicbrainz.eu/*
 // @exclude      https://musicbrainz.*/oauth2/authorize*
 // @grant        none
-// @version      0.8.2
+// @version      0.8.3
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -253,6 +253,14 @@ function generateLinkList(hoveredURL) {
       '/open_edits',
       '/edits',
     ],
+    'series/': [
+      '/aliases',
+      '/tags',
+      '/details',
+      '/edit',
+      '/open_edits',
+      '/edits',
+    ],
   };
 
   for (const entity in patterns) {
@@ -418,6 +426,7 @@ const entityHeaders = {
   tag: { name: 'Tag', icon: 'tag.svg' },
   genre: { name: 'Genre', icon: 'genre.svg' },
   instrument: { name: 'Instrument', icon: 'instrument.svg' },
+  series: { name: 'Series', icon: 'series.svg' },
 };
 
 const storeHeaders = {
@@ -456,9 +465,14 @@ function getMBHeaderContent(hoveredObject, entity, entityHeaders) {
     iconURL = header.icon;
     headerText = header.name;
   }
+
   //deal with subheader RG text, "see all versions of this release..."
   if (entity === 'release-group' && $(hoveredObject).parent().parent().hasClass('subheader')) {
     headerText = 'Release group';
+  }
+  //deal with cover art links from the funkey illustrated records script
+  if ((entity === 'release-group' || entity === 'release') && hoveredObject.firstChild.tagName === 'IMG') {
+    headerText = hoveredObject.firstChild.alt;
   }
 
   const newHeaderText = getHeaderText(entity, hoveredObject.textContent);
