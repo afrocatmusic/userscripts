@@ -18,6 +18,7 @@ function css() {
   if (head) {
     let style = document.createElement('style');
     style.setAttribute('type', 'text/css');
+    style.setAttribute('id', 'afros_sublinks');
     style.textContent = `
     .sublinksContainer {
       width: max-content;
@@ -223,6 +224,35 @@ function generateLinkList(hoveredURL) {
       '/open_edits',
       '/edits',
     ],
+    'tag/': [
+      '/artist',
+      '/release-group',
+      '/release',
+      '/recording',
+      '/work',
+      '/label',
+      '/place',
+      '/area',
+      '/instrument',
+      '/series',
+      '/event',
+    ],
+    'genre/': [
+      '/aliases',
+      '/details',
+      '/open_edits',
+      '/edits',
+    ],
+    'instrument/': [
+      '/artists',
+      '/releases',
+      '/recordings',
+      '/aliases',
+      '/tags',
+      '/details',
+      '/open_edits',
+      '/edits',
+    ],
   };
 
   for (const entity in patterns) {
@@ -234,27 +264,38 @@ function generateLinkList(hoveredURL) {
         a.textContent = suffix.replace('/', '');
         let aTextMap = new Map([
           //name of menu options
-          ['releases', 'Releases'],
-          ['recordings', 'Recordings'],
-          ['works', 'Works'],
-          ['events', 'Events'],
-          ['relationships', 'Relationships'],
           ['aliases', 'Aliases'],
-          ['tags', 'Tags'],
-          ['ratings', 'Ratings'],
+          ['area', 'Area'],
+          ['artist', 'Artists'], //singular into plural for /tag matching
+          ['artists', 'Artists'],
+          ['cover-art', 'Cover art'],
           ['details', 'Details'],
+          ['discids', 'Disc IDs'],
           ['edit', 'Edit'],
           ['edit-relationships', 'Edit rels.'],
-          ['open_edits', 'Open edits'],
           ['edits', 'History'],
+          ['event', 'Events'],
+          ['events', 'Events'],
           ['fingerprints', 'Fingerprints'],
-          ['discids', 'Disc IDs'],
-          ['area', 'Area'],
-          ['cover-art', 'Cover art'],
-          ['artists', 'Artists'],
+          ['instrument', 'Instruments'],
+          ['label', 'Labels'],
           ['labels', 'Labels'],
+          ['open_edits', 'Open edits'],
+          ['place', 'Places'],
           ['places', 'Places'],
+          ['ratings', 'Ratings'],
+          ['recording', 'Recordings'],
+          ['recordings', 'Recordings'],
+          ['relationships', 'Relationships'],
+          ['release', 'Releases'],
+          ['release-group', 'Release groups'],
+          ['release-groups', 'Release groups'],
+          ['releases', 'Releases'],
+          ['series', 'Series'],
+          ['tags', 'Tags'],
           ['users', 'Users'],
+          ['work', 'Works'],
+          ['works', 'Works'],
         ]);
         if (aTextMap.has(a.textContent)) {
           a.textContent = aTextMap.get(suffix.replace('/', ''));
@@ -337,7 +378,7 @@ let hoveredObject = null;
 let mouseX = 0;
 let mouseY = 0;
 
-const mbRegex = /musicbrainz\.(org|eu)\/.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const mbRegex = /musicbrainz\.(org|eu)\/(.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|tag\/.*)$/;
 const digitalStoreRegex = /spotify\.com\/(?:intl-\w{2}\/)?album\/|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release/;
 
 const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
@@ -372,8 +413,11 @@ const entityHeaders = {
   'release-group': { name: 'Release Group', icon: 'release_group.svg' },
   work: { name: 'Work', icon: 'work.svg' },
   area: { name: 'Area', icon: 'area.svg' },
-  url: { name: 'URL', icon: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Mismatch_finder_link_icon.png' },
+  url: { name: 'URL entity', icon: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Mismatch_finder_link_icon.png' },
   label: { name: 'Label', icon: 'label.svg' },
+  tag: { name: 'Tag', icon: 'tag.svg' },
+  genre: { name: 'Genre', icon: 'genre.svg' },
+  instrument: { name: 'Instrument', icon: 'instrument.svg' },
 };
 
 const storeHeaders = {
