@@ -22,7 +22,8 @@ Adds some extra info to Beatsource release pages and some handy links to help im
 Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.  
 A spiritual successor of [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js), don't use both at the same time!  
   
-<img width="700" alt="image" src="https://github.com/user-attachments/assets/d9cee44d-22d8-4a6f-828b-20b6273e7b69" />
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/20634bec-9180-41fd-86c0-c788bbec0f1d" />
+
 
 ### [afro's sublinks](https://github.com/afrocatmusic/userscripts/blob/main/afros-sublinks.user.js)  
 Hover over a [MusicBrainz entity link](https://musicbrainz.org/doc/MusicBrainz_Entity) and press `Shift` to open a sublinks menu.  
