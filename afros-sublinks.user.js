@@ -7,7 +7,7 @@
 // @match        *://musicbrainz.eu/*
 // @exclude      https://musicbrainz.*/oauth2/authorize*
 // @grant        none
-// @version      0.8.3
+// @version      0.8.4
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -325,7 +325,8 @@ function matchDigitalStores(url) {
     { name: 'deezer', regex: /^https?:\/\/.*deezer\.com\/(?:\w{2}\/)?album\/(\d*)/, atisketKey: 'deez_id' },
     { name: 'beatport', regex: /^https?:\/\/.*beatport\.com\/release\/.*\/(\d*)/ },
     { name: 'tidal', regex: /^https?:\/\/.*tidal\.com\/(?:browse\/)?album\/(\d*)/ },
-    { name: 'discogs', regex: /^https?:\/\/(?:www\.)?discogs\.com\/(?:.*)?release\/(\d+)(?:-.*|\/.*)?/ }
+    { name: 'discogs', regex: /^https?:\/\/(?:www\.)?discogs\.com\/(?:.*)?release\/(\d+)(?:-.*|\/.*)?/ },
+    { name: 'bandcamp', regex: /^https?:\/\/(?:.*).bandcamp.com\/(?:(track|album))(?:.*)$/ }
   ];
 
   for (const store of stores) {
@@ -344,10 +345,17 @@ function matchDigitalStores(url) {
 
       if (platform === 'discogs') { //deal with discogs
         links.push({ href: `https://discogs.com/release/${uid}/history`, text: 'Show history' });
-      } else {
+      }
+
+      if (platform === 'bandcamp') { //deal with bandcamp
+        links.push({ href: `https://harmony.pulsewidth.org.uk/release?url=${url}&category=preferred`, text: 'Harmony' });
+      }
+
+       else {
         // Harmony for everything else
         links.push({ href: `https://harmony.pulsewidth.org.uk/release?${platform}=${uid}&category=preferred`, text: 'Harmony' });
       }
+
 
       if (store.atisketKey) { // except if atisketKey exists, add atisket link
         const atisketURL = `https://atisket.pulsewidth.org.uk/?${store.atisketKey}=${uid}`;
@@ -387,7 +395,7 @@ let mouseX = 0;
 let mouseY = 0;
 
 const mbRegex = /musicbrainz\.(org|eu)\/(.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|tag\/.*)$/;
-const digitalStoreRegex = /spotify\.com\/(?:intl-\w{2}\/)?album\/|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release/;
+const digitalStoreRegex = /spotify\.com\/(?:intl-\w{2}\/)?album\/|apple\.com\/\w{2}\/album|deezer\.com\/album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release|bandcamp.com\/(track|album)/;
 
 const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
 
@@ -437,6 +445,7 @@ const storeHeaders = {
   beatport: { name: 'Beatport', icon: 'beatport-32.png' },
   tidal: { name: 'Tidal', icon: 'tidal-32.png' },
   discogs: { name: 'Discogs', icon: 'discogs-32.png' },
+  bandcamp: {name: 'Bandcamp', icon: 'bandcamp-32.png' },
 };
 
 function getHeaderText(entity, text) {
@@ -467,7 +476,7 @@ function getMBHeaderContent(hoveredObject, entity, entityHeaders) {
   }
 
   //deal with subheader RG text, "see all versions of this release..."
-  if (entity === 'release-group' && $(hoveredObject).parent().parent().hasClass('subheader')) {
+  if (entity === 'release-group' && ($(hoveredObject).parent().parent().hasClass('subheader') || $(hoveredObject).parent().parent().parent().hasClass('subheader'))) {
     headerText = 'Release group';
   }
   //deal with cover art links from the funkey illustrated records script
