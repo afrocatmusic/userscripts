@@ -4,7 +4,7 @@
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/afros-Harmony-Add-Ons.user.js
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-Harmony-Add-Ons.user.js
 // @match       https://harmony.pulsewidth.org.uk/release?*
-// @version     1.3
+// @version     1.4
 // @author      afro
 // @grant       GM_setClipboard
 // @grant       GM.setClipboard
@@ -27,7 +27,7 @@ function delay(ms) {
 
 //--- add search links for youtube music, qobuz, beatsource, and HDTracks
 function addSearchLinks() {
-  const separator = document.createTextNode(' | ');
+  if (!$('.release')[0]) {return;} // if harmony can't find a release, return early
 
   //deal with VA
   let relArtist = '';
@@ -39,12 +39,8 @@ function addSearchLinks() {
   let relTitle = $('.release-title')[0].textContent.replaceAll('&','%26').replaceAll('/',' ');
 
   //YouTube Music
-  let barcode = $('[title="Global Trade Item Number"]')[0].parentElement.nextElementSibling.textContent.replace(/^0+/,''); //remove leading zeroes
-  let ytRelURL = `https://music.youtube.com/search?q="${barcode}"`;
-  let ytReleaseLink = document.createTextNode('Search YouTube Music');
-  let ytRelAnchor = document.createElement('a');
-      ytRelAnchor.appendChild(ytReleaseLink);
-      ytRelAnchor.setAttribute('href', ytRelURL);
+  let barcode = $('[title="Global Trade Item Number"]').parent().next().text().replace(/^0+/,''); //remove leading zeroes
+  let ytRelURL = `https://music.youtube.com/search?q=&quot;${barcode}&quot;`;
 
   //Qobuz
   let defaultQbzRegion = 'us-en'; //feel free to change
@@ -60,28 +56,16 @@ function addSearchLinks() {
   let regionKey = regionInput.split(',').map(code => code).find(code => regionMap[code]);
   let qbzRegion = regionMap[regionKey] || defaultQbzRegion;
   let qbzSearchURL = `https://www.qobuz.com/${qbzRegion}/search/albums/${relArtist} ${relTitle}`;
-  let linkQbzText = document.createTextNode('Search Qobuz');
-  let qbzAnchor = document.createElement('a');
-      qbzAnchor.appendChild(linkQbzText);
-      qbzAnchor.setAttribute('href', qbzSearchURL);
 
   //Beatsource
   let btsSearchURL = `https://www.beatsource.com/search/releases?q=${relArtist} ${relTitle}`;
-  let linkBtsText = document.createTextNode('Search Beatsource');
-  let btsAnchor = document.createElement('a');
-      btsAnchor.appendChild(linkBtsText);
-      btsAnchor.setAttribute('href', btsSearchURL);
 
   //HDTracks
   let hdtSearchURL = `https://www.hdtracks.com/#/search?q=${relArtist}%20${relTitle}`;
-  let linkHDTText = document.createTextNode('Search HDTracks');
-  let hdtAnchor = document.createElement('a');
-      hdtAnchor.appendChild(linkHDTText);
-      hdtAnchor.setAttribute('href', hdtSearchURL);
 
-  //placing
-  let space = $('h2.center')[0];
-      space.nextElementSibling.append(qbzAnchor, separator, ytRelAnchor, separator.cloneNode(), btsAnchor, separator.cloneNode(), hdtAnchor);
+  $('h2.center').next().append(`<div class="row">
+    <a href="${qbzSearchURL}">Search Qobuz</a> | <a href="${ytRelURL}">Search YouTube Music</a> | <a href="${btsSearchURL}">Search Beatsource</a> | <a href="${hdtSearchURL}">Search HDTracks</a>
+  </div>`);
 }
 addSearchLinks();
 
