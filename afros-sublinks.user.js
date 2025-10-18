@@ -7,7 +7,7 @@
 // @match        *://musicbrainz.eu/*
 // @exclude      https://musicbrainz.*/oauth2/authorize*
 // @grant        none
-// @version      0.8.4
+// @version      0.8.4.1
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -347,7 +347,7 @@ function matchDigitalStores(url) {
         links.push({ href: `https://discogs.com/release/${uid}/history`, text: 'Show history' });
       }
 
-      if (platform === 'bandcamp') { //deal with bandcamp
+      else if (platform === 'bandcamp') { //deal with bandcamp
         links.push({ href: `https://harmony.pulsewidth.org.uk/release?url=${url}&category=preferred`, text: 'Harmony' });
       }
 
