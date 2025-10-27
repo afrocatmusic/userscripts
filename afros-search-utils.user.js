@@ -8,7 +8,7 @@
 // @match       *://musicbrainz.eu/*
 // @exclude     /\/release\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\/(discids|cover-art|aliases|tags|details|edit|edit-relationships|delete|change-quality|edits|open_edits)/
 // @exclude     /\/release\/add/
-// @version     0.2
+// @version     0.3
 // @author      afro
 // @description Add external search options to release and release group pages
 // ==/UserScript==
@@ -71,7 +71,7 @@ function createButton(name, icon, searchURL) {
   //search or barcode lookup logic
   let url;
   if (typeof searchURL === 'object') {
-    if (!barcodeField || barcodeField.text() === '[none]') {
+    if (barcodeField.length === 0 || barcodeField.text() === '[none]') {
       url = searchURL.search;
     } else {
       url = searchURL.lookup;
@@ -183,6 +183,16 @@ const releaseProviders = [
     name: 'Bugs!',
     icon: 'https://file.bugsm.co.kr/wbugs/common/faviconBugs.ico',
     url: `https://music.bugs.co.kr/search/album?q=${encodedSearch}`
+  },
+  {
+    name: 'OTOTOY',
+    icon: 'https://ototoy.jp/favicon.ico',
+    url: `https://ototoy.jp/find/?q=${encodedSearch}`
+  },
+  {
+    name: 'mora',
+    icon: 'https://mora.jp/favicon.ico',
+    url: `https://mora.jp/search/album?keyWord=${encodedSearch}`
   }
 ];
 
