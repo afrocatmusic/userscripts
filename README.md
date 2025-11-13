@@ -16,25 +16,30 @@ Adds a button to MusicBrainz releases to copy all URL relationships to the clipb
 ### [afro's Beatsource Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Beatsource-Add-Ons.user.js)
 Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.  
 
-<img height="600" alt="image" src="https://github.com/user-attachments/assets/f7014aa2-52e6-4d0d-99a0-523ee43c83ec" />
+<img height="600" alt="beatsource add-ons screenshot" src="https://github.com/user-attachments/assets/f7014aa2-52e6-4d0d-99a0-523ee43c83ec" />
 
 ### [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
 Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.  
 A spiritual successor of [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js), don't use both at the same time!  
   
-<img width="800" alt="image" src="https://github.com/user-attachments/assets/20634bec-9180-41fd-86c0-c788bbec0f1d" />
+<img width="800" alt="harmony add-ons screenshot" src="https://github.com/user-attachments/assets/20634bec-9180-41fd-86c0-c788bbec0f1d" />
 
 
 ### [afro's sublinks](https://github.com/afrocatmusic/userscripts/blob/main/afros-sublinks.user.js)  
 Hover over a [MusicBrainz entity link](https://musicbrainz.org/doc/MusicBrainz_Entity) and press `Shift` to open a sublinks menu.  
   
-<img width="256" height="344" alt="image" src="https://github.com/user-attachments/assets/643b16c6-fc57-4515-a648-51fa18a0794f" />
+<img width="256" height="344" alt="afro's sublinks screenshot" src="https://github.com/user-attachments/assets/643b16c6-fc57-4515-a648-51fa18a0794f" />
 
 
 ### [afro's search utilities](https://github.com/afrocatmusic/userscripts/blob/main/afros-search-utils.user.js)  
 Adds a "Search options" section to releases and release groups with search links for many different websites.  
 A spiritual successor of [RG Search Utilities](https://github.com/afrocatmusic/userscripts/blob/main/afros-RG-Search-Utilities.user.js) and [MBz Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/MBz-YouTube-Music-Lookup.user.js)  
 
-<img width="281" height="195" alt="image" src="https://github.com/user-attachments/assets/5af34b3a-dd16-4962-a267-7a7e253f2678" />
-<img width="281" height="105" alt="image" src="https://github.com/user-attachments/assets/2edd4a42-7434-48ce-8459-89157625eef0" />
+<img width="281" height="195" alt="afro's search options on releases" src="https://github.com/user-attachments/assets/5af34b3a-dd16-4962-a267-7a7e253f2678" />
+<img width="281" height="105" alt="afro's search options on release groups" src="https://github.com/user-attachments/assets/2edd4a42-7434-48ce-8459-89157625eef0" />
 
+
+### [Traxsource MusicBrainz Importer](https://github.com/afrocatmusic/userscripts/blob/main/traxsource-importer.user.js)  
+Import [Traxsource](https://www.traxsource.com/) releases to MusicBrainz
+
+<img width="596" height="244" alt="traxsource importer screenshot" src="https://github.com/user-attachments/assets/f6a720bf-a132-46f0-8ce6-bfc121422249" />
