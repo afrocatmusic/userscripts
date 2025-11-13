@@ -16,7 +16,8 @@ Adds a button to MusicBrainz releases to copy all URL relationships to the clipb
 ### [afro's Beatsource Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Beatsource-Add-Ons.user.js)
 Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.  
 
-<img height="600" alt="beatsource add-ons screenshot" src="https://github.com/user-attachments/assets/f7014aa2-52e6-4d0d-99a0-523ee43c83ec" />
+<img height="600" alt="beatsource add-ons screenshot" src="https://github.com/user-attachments/assets/9f6e0ac1-e671-48a0-baa1-6e6421c9f624" />
+
 
 ### [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
 Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.  
