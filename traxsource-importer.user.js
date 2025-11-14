@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/traxsource-importer.user.js
 // @match        https://www.traxsource.com/*
 // @grant        none
-// @version      2025.11.13.2
+// @version      2025.11.14.1
 // @author       afro
 // @description  Import Traxsource releases to MusicBrainz
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -248,7 +248,7 @@ function createForm(releaseInfo, tracklist) {
     addInput(form, 'barcode', releaseInfo.upc);
   }
 
-  addInput(form, 'edit_note', `Imported from ${releaseInfo.sourceUrl}`);
+  addInput(form, 'edit_note', `Imported from ${releaseInfo.sourceUrl} using https://github.com/afrocatmusic/userscripts/blob/main/traxsource-importer.user.js`);
 
   if (annotation) {
     addInput(form, 'annotation', annotation);
