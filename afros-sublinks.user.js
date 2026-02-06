@@ -7,7 +7,7 @@
 // @match        *://musicbrainz.eu/*
 // @exclude      https://musicbrainz.*/oauth2/authorize*
 // @grant        none
-// @version      0.8.4.2
+// @version      0.8.5
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
@@ -377,6 +377,146 @@ function matchDigitalStores(url) {
   return [];
 }
 
+function generateUserLinkList(url) {
+  let links = [];
+  const baseMatch = url.match(/musicbrainz\.(org|eu)\/user\/([^\/]+)/);
+
+  if (!baseMatch) {return links;} //return empty list
+
+  const domain = baseMatch[1];
+  const username = baseMatch[2];
+
+  const editSearchBase = `https://musicbrainz.${domain}/search/edits`;
+  const mbLinkBase = `https://musicbrainz.${domain}`
+  const linkOptions = [
+    {
+      text: 'Edits',
+      href: `${mbLinkBase}/user/${username}/edits`
+    },
+    {
+      text: 'Open edits',
+      href: `https://musicbrainz.${domain}/user/${username}/edits/open`
+    },
+    {
+      text: '⤷ Review open edits',
+      href: `${editSearchBase}?auto_edit_filter=&order=asc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=status&conditions.1.operator=%3D&conditions.1.args=1&conditions.2.field=voter&conditions.2.operator=me&conditions.2.name=&conditions.2.voter_id=&conditions.2.args=no`
+    },
+    {
+      text: '⤷ Review open edits, no covers',
+      href: `${editSearchBase}?auto_edit_filter=&order=asc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=status&conditions.1.operator=%3D&conditions.1.args=1&conditions.2.field=type&conditions.2.operator=!%3D&conditions.2.args=314&conditions.3.field=voter&conditions.3.operator=me&conditions.3.name=&conditions.3.voter_id=&conditions.3.args=no`
+    },
+    {
+      text: 'Votes',
+      href: `${mbLinkBase}/user/${username}/votes`
+    },
+    {
+      text: 'Collections',
+      href: `${mbLinkBase}/user/${username}/collections`
+    },
+    {
+      text: 'Added releases',
+      href: `${editSearchBase}?auto_edit_filter=&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&combinator=and&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31,216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&negation=0&order=desc`
+    },
+    {
+      text: '⤷ albums',
+      href: `${editSearchBase}?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31%2C216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&conditions.5.field=release_group_primary_type&conditions.5.operator=%3D&conditions.5.args=1`
+    },
+    {
+      text: '⤷ remix',
+      href: `${editSearchBase}?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31%2C216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&conditions.4.field=release_group_secondary_type&conditions.4.operator=%3D&conditions.4.args=7`
+    },
+    {
+      text: 'Added or edited mediums',
+      href: `${editSearchBase}?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=51&conditions.1.args=52&field=Please+choose+a+condition`
+    }
+  ];
+
+  links = linkOptions.map((linkInfo) => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = linkInfo.href;
+    a.textContent = linkInfo.text;
+    a.target = '_self';
+
+    //temporary localStorage flag
+    function setSublinksLocalStorage() {
+      localStorage.setItem('afros_sublinks_editSearch_autoSelect', 'true');
+    }
+    a.addEventListener('click', setSublinksLocalStorage);
+    a.addEventListener('auxclick', setSublinksLocalStorage);
+
+    li.append(document.createTextNode('• '), a);
+    return li;
+  });
+  return links;
+}
+
+function autoCheckEditorName() {
+  const localStorageKey = 'afros_sublinks_editSearch_autoSelect';
+  // Only run if coming from sublinks click
+  if (!localStorage.getItem(localStorageKey)) { return; }
+
+  const searchParamsError = 'Oops! It seems your search parameters are not correct, please double check your input!';
+
+  if (window.location.href.startsWith('https://musicbrainz.org/search/edits')) {
+    const errorMsg = $(`p:contains(${searchParamsError})`);
+
+    if (errorMsg.length > 0) {
+      if (errorMsg.prev().children().attr('class') === 'field field-editor predicate-user') {
+
+        errorMsg.text(`afro's sublinks: selecting editor username...`)
+          .css({'font-weight': 'bold',
+                'background-color': 'rgba(35, 245, 247, 0.3)',
+                'max-width': 'max-content',
+                'border-radius': '5px',
+                'padding': '5px'
+               });
+
+        let editorUsername = $('.field.field-editor.predicate-user').first().find('input').val();
+        let searchButton = $('.field.field-editor.predicate-user > .arg.autocomplete.editor').find('img');
+        const inputField = $('.field.field-editor.predicate-user').first().find('input');
+
+        searchButton.click();
+
+        let maxTries = 20;
+        let tryCount = 0;
+
+        const checkDropdown = setInterval(() => {
+          tryCount++;
+          const dropdown = $('#ui-id-1.ui-autocomplete');
+          const correctListItem = dropdown.find('li > a').filter(function() {
+            return $(this).text() === editorUsername;
+          }).parent('li');
+
+          if (correctListItem.length === 1 && (dropdown.children().length > 1 && dropdown.first().text() !== '(No results)')) {
+            clearInterval(checkDropdown);
+
+            //100ms delay between finding the right list entry and clicking it
+            setTimeout(() => {
+              correctListItem.trigger('mousedown');
+              correctListItem.trigger('mouseup');
+              correctListItem.click();
+              localStorage.removeItem(localStorageKey);
+
+              //and another 100ms before clicking the submit button
+              setTimeout(() => {
+                $('#edit-search-submit').find('button').click();
+              }, 100);
+
+            }, 100);
+
+          } else if (tryCount >= maxTries) {
+            clearInterval(checkDropdown);
+            console.log('max attempts reached');
+            localStorage.removeItem(localStorageKey);
+          }
+        }, 250); //checking every 250ms
+      }
+    }
+  }
+}
+autoCheckEditorName();
+
 function createMovableContainer() {
   let sublinksContainer = document.createElement('div');
   $('body').append(sublinksContainer);
@@ -394,7 +534,7 @@ let hoveredObject = null;
 let mouseX = 0;
 let mouseY = 0;
 
-const mbRegex = /musicbrainz\.(org|eu)\/(.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|tag\/.*)$/;
+const mbRegex = /musicbrainz\.(org|eu)\/(?:user\/([^\/]+)(?:\/)?$|\/user\/([^\/]+)\/.*|(.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|tag\/.*)$/;
 const digitalStoreRegex = /spotify\.com\/(?:intl-\w{2}\/)?album\/|apple\.com\/\w{2}\/album|deezer\.com\/(?:\w{2}\/)?album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release|bandcamp.com\/(track|album)/;
 
 const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
@@ -435,6 +575,7 @@ const entityHeaders = {
   genre: { name: 'Genre', icon: 'genre.svg' },
   instrument: { name: 'Instrument', icon: 'instrument.svg' },
   series: { name: 'Series', icon: 'series.svg' },
+  user: { name: 'Editor', icon: 'editor.svg'},
 };
 
 const storeHeaders = {
@@ -475,13 +616,35 @@ function getMBHeaderContent(hoveredObject, entity, entityHeaders) {
     headerText = header.name;
   }
 
+  if (entity === 'user') { //deal with editors
+    const userMatch = hoveredURL.match(/\/user\/([^\/]+)/);
+    if (userMatch && userMatch[1]) {
+      try {
+        headerText = decodeURIComponent(userMatch[1]); //user actual username
+      } catch (e) {
+        headerText = userMatch[1];
+        console.log('Failed to decode username, using encoded string');
+      }
+
+    } else {
+      headerText = header.name; //or generic "Editor"
+    }
+  }
+
   //deal with subheader RG text, "see all versions of this release..."
   if (entity === 'release-group' && ($(hoveredObject).parent().parent().hasClass('subheader') || $(hoveredObject).parent().parent().parent().hasClass('subheader'))) {
     headerText = 'Release group';
   }
-  //deal with cover art links from the funkey illustrated records script
-  if ((entity === 'release-group' || entity === 'release') && hoveredObject.firstChild.tagName === 'IMG') {
-    headerText = hoveredObject.firstChild.alt;
+
+  //deal with cover art links
+  const imageElem = hoveredObject.querySelector('img');
+  if ((entity === 'release-group' || entity === 'release') && imageElem) {
+    const imageText = imageElem.alt || imageElem.title;
+    if (imageText) {
+      headerText = imageText;
+    } else {
+      headerText = hoveredObject.title || headerText;
+    }
   }
 
   const newHeaderText = getHeaderText(entity, hoveredObject.textContent);
@@ -594,7 +757,14 @@ document.addEventListener('keydown', (event) => {
     const hoveredURL = hoveredObject.href;
     let headerContent = null;
 
-    if (mbRegex.test(hoveredURL)) { //match MB entities
+    if (hoveredURL.includes('/user')) {
+      listItems = generateUserLinkList(hoveredURL);
+      if (listItems.length > 0) {
+        headerContent = getMBHeaderContent(hoveredObject, 'user', entityHeaders);
+      }
+    }
+
+    else if (mbRegex.test(hoveredURL)) { //match MB entities
       listItems = generateLinkList(hoveredURL);
       for (const entity in entityHeaders) {
         if (hoveredURL.includes(`/${entity}/`)) {
