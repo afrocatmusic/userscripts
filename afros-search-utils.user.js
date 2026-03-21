@@ -8,8 +8,9 @@
 // @match       *://musicbrainz.eu/*
 // @exclude     /\/release\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\/(discids|cover-art|aliases|tags|details|edit|edit-relationships|delete|change-quality|edits|open_edits)/
 // @exclude     /\/release\/add/
-// @version     0.3
+// @version     2026.3.20
 // @author      afro
+// @grant       none
 // @description Add external search options to release and release group pages
 // ==/UserScript==
 
@@ -81,7 +82,7 @@ function createButton(name, icon, searchURL) {
   }
 
   return $(`<a class="search-icon-button" href="${url}" target="_blank" title="Search this release on ${name}">
-    <img src="${icon}" width="20px">
+    <img src="${icon}" width="20px" height="20px">
   </a>`);
 }
 
@@ -120,7 +121,7 @@ const releaseProviders = [
   },
   {
     name: 'Qobuz',
-    icon: 'https://www.qobuz.com/assets-static/img/icons/favicon/apple-icon-180x180.png',
+    icon: 'https://static.qobuz.com/images/favicon/favicon.svg',
     url: `https://www.qobuz.com/us-en/search/albums/${encodedSearch.replace(/%2F/g, ' ')}`
   },
   {
@@ -156,7 +157,7 @@ const releaseProviders = [
   {
     //discogs barcode lookup rarely works
     name: 'Discogs',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Discogs_logo.png',
+    icon: 'https://catalog-assets.discogs.com/1c4f3a21.png',
     url: {
       search: `https://www.discogs.com/search/?type=release&title=${encodeURIComponent(getInfo('title'))}&artist=${encodeURIComponent(getInfo('artist'))}`,
       lookup: `https://www.discogs.com/search/?type=release&barcode=${barcodeField.text()}`
@@ -199,7 +200,7 @@ const releaseProviders = [
 const rgProviders = [
   {
     name: 'RateYourMusic',
-    icon: 'https://upload.wikimedia.org/wikipedia/en/d/d0/Rate_Your_Music_logo.svg',
+    icon: 'https://e.snmc.io/2.5/img/sonemic.png',
     url: `https://www.google.com/search?q=${encodeURIComponent(getInfo('title'))} by ${encodeURIComponent(getInfo('artist'))} site:rateyourmusic.com`
   },
   {
@@ -216,6 +217,11 @@ const rgProviders = [
     name: 'AllMusic',
     icon: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/AllMusic_Logo.svg',
     url: `https://www.allmusic.com/search/albums/${encodedSearch}`
+  },
+  {
+    name: 'Discogs',
+    icon: 'https://catalog-assets.discogs.com/1c4f3a21.png',
+    url: `https://www.discogs.com/search?type=master&title=${encodeURIComponent(getInfo('title'))}&artist=${encodeURIComponent(getInfo('artist'))}`
   },
 ]
 
