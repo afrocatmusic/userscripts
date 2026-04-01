@@ -44,3 +44,6 @@ A spiritual successor of [RG Search Utilities](https://github.com/afrocatmusic/u
 Import [Traxsource](https://www.traxsource.com/) releases to MusicBrainz
 
 <img width="596" height="244" alt="traxsource importer screenshot" src="https://github.com/user-attachments/assets/f6a720bf-a132-46f0-8ce6-bfc121422249" />
+
+### [country list minimizer](https://github.com/afrocatmusic/userscripts/blob/main/country-list-minimizer.user.js)
+Helps hide / toggle long release event lists on MusicBrainz.
