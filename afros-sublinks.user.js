@@ -3,23 +3,16 @@
 // @namespace    https://github.com/afrocatmusic/userscripts
 // @updateURL    https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
-// @match        *://*.musicbrainz.org/*
-// @match        *://musicbrainz.eu/*
-// @exclude      https://musicbrainz.*/oauth2/authorize*
+// @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      0.8.5
+// @version      2026.4.24.3
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js
+// @require      https://code.jquery.com/jquery-4.0.0.min.js
 // ==/UserScript==
 
 function css() {
-  let head = document.getElementsByTagName('head')[0];
-  if (head) {
-    let style = document.createElement('style');
-    style.setAttribute('type', 'text/css');
-    style.setAttribute('id', 'afros_sublinks');
-    style.textContent = `
+  const classes = `
     .sublinksContainer {
       width: max-content;
       max-width: 20em;
@@ -93,15 +86,15 @@ function css() {
       overflow: visible;
       text-overflow: clip;
     }
-      `;
-    head.appendChild(style);
-  }
+  `;
+
+  $(`<style id="afros_sublinks">`).text(classes).appendTo('head');
 }
 css();
 
 function addSublinksLogo() {
   //prevent unstyled text
-  if (!document.querySelectorAll('[src="/static/scripts/supported-browser-check.js"]')[0]) { return; } //doesn't work with jquery selector
+  if (!document.querySelectorAll('[src="/static/scripts/supported-browser-check.js"]')[0]) return; //doesn't work with jquery selector
 
   // from https://www.svgrepo.com/svg/532198/list-ul-alt
   const svgIcon = `
@@ -110,30 +103,35 @@ function addSublinksLogo() {
             stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   `;
-  const svgContainer = document.createElement('div');
-  svgContainer.innerHTML = svgIcon;
-  svgContainer.setAttribute('class', 'svg-container');
-  const area = $('.menu')[1];
-  area.append(svgContainer);
-  // tooltip div
-  const tooltipDiv = document.createElement('div');
-  tooltipDiv.setAttribute('class', 'sublinksContainer tooltip');
-  tooltipDiv.style.display = 'block';
-  tooltipDiv.textContent = 'afro\'s sublinks is active\nHover over a link and press shift!';
-  document.body.appendChild(tooltipDiv);
 
-  svgContainer.addEventListener('mouseover', () => {
-    tooltipDiv.classList.add('visible');
+  const menuArea = $('div.right div.bottom ul.menu');
+
+  const svgContainer = $(`<div class="svg-container"></div>`).html(svgIcon);
+  menuArea.append(svgContainer);
+
+  const tooltipDiv = $(`
+    <div id="tooltipDiv" class="sublinksContainer tooltip">afro's sublinks is active
+      Hover over a link and press shift!
+    </div>
+  `).appendTo(menuArea);
+
+  svgContainer.on('mouseover', function() {
+    tooltipDiv.addClass('visible');
   });
-  svgContainer.addEventListener('mousemove', (event) => {
-    //sublinks window position offset
-    const offsetX = -170; //px to the right
-    const offsetY = -20; //px down
-    tooltipDiv.style.left = `${svgContainer.getBoundingClientRect().left + offsetX}px`;
-    tooltipDiv.style.top = `${event.clientY + offsetY}px`;
+
+  svgContainer.on('mousemove', function(e) {
+    const offsetX = -160;
+    const offsetY = -20;
+    const rect = svgContainer[0].getBoundingClientRect();
+
+    tooltipDiv.css({
+      left: (rect.left + offsetX) + 'px',
+      top: (e.clientY + offsetY) + 'px'
+    });
   });
-  svgContainer.addEventListener('mouseleave', () => {
-    tooltipDiv.classList.remove('visible');
+
+  svgContainer.on('mouseleave', function() {
+    tooltipDiv.removeClass('visible');
   });
 }
 addSublinksLogo();
@@ -353,7 +351,9 @@ function matchDigitalStores(url) {
 
        else {
         // Harmony for everything else
-        links.push({ href: `https://harmony.pulsewidth.org.uk/release?${platform}=${uid}&category=preferred`, text: 'Harmony' });
+        links.push(
+          { href: `https://harmony.pulsewidth.org.uk/release?${platform}=${uid}&category=preferred`, text: 'Harmony' },
+        );
       }
 
 
@@ -379,55 +379,54 @@ function matchDigitalStores(url) {
 
 function generateUserLinkList(url) {
   let links = [];
-  const baseMatch = url.match(/musicbrainz\.(org|eu)\/user\/([^\/]+)/);
 
-  if (!baseMatch) {return links;} //return empty list
+  const parts = url.split('/');
+  const userIndex = parts.indexOf('user');
 
-  const domain = baseMatch[1];
-  const username = baseMatch[2];
+  if (userIndex === -1 || !parts[userIndex + 1]) return links;
 
-  const editSearchBase = `https://musicbrainz.${domain}/search/edits`;
-  const mbLinkBase = `https://musicbrainz.${domain}`
+  const username = parts[userIndex + 1];
+
   const linkOptions = [
     {
       text: 'Edits',
-      href: `${mbLinkBase}/user/${username}/edits`
+      href: `/user/${username}/edits`
     },
     {
       text: 'Open edits',
-      href: `https://musicbrainz.${domain}/user/${username}/edits/open`
+      href: `/user/${username}/edits/open`
     },
     {
       text: '⤷ Review open edits',
-      href: `${editSearchBase}?auto_edit_filter=&order=asc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=status&conditions.1.operator=%3D&conditions.1.args=1&conditions.2.field=voter&conditions.2.operator=me&conditions.2.name=&conditions.2.voter_id=&conditions.2.args=no`
+      href: `/search/edits?auto_edit_filter=&order=asc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=status&conditions.1.operator=%3D&conditions.1.args=1&conditions.2.field=voter&conditions.2.operator=me&conditions.2.name=&conditions.2.voter_id=&conditions.2.args=no`
     },
     {
       text: '⤷ Review open edits, no covers',
-      href: `${editSearchBase}?auto_edit_filter=&order=asc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=status&conditions.1.operator=%3D&conditions.1.args=1&conditions.2.field=type&conditions.2.operator=!%3D&conditions.2.args=314&conditions.3.field=voter&conditions.3.operator=me&conditions.3.name=&conditions.3.voter_id=&conditions.3.args=no`
+      href: `/search/edits?auto_edit_filter=&order=asc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=status&conditions.1.operator=%3D&conditions.1.args=1&conditions.2.field=type&conditions.2.operator=!%3D&conditions.2.args=314&conditions.3.field=voter&conditions.3.operator=me&conditions.3.name=&conditions.3.voter_id=&conditions.3.args=no`
     },
     {
       text: 'Votes',
-      href: `${mbLinkBase}/user/${username}/votes`
+      href: `/user/${username}/votes`
     },
     {
       text: 'Collections',
-      href: `${mbLinkBase}/user/${username}/collections`
+      href: `/user/${username}/collections`
     },
     {
       text: 'Added releases',
-      href: `${editSearchBase}?auto_edit_filter=&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&combinator=and&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31,216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&negation=0&order=desc`
+      href: `/search/edits?auto_edit_filter=&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&combinator=and&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31,216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&negation=0&order=desc`
     },
     {
       text: '⤷ albums',
-      href: `${editSearchBase}?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31%2C216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&conditions.5.field=release_group_primary_type&conditions.5.operator=%3D&conditions.5.args=1`
+      href: `/search/edits?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31%2C216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&conditions.5.field=release_group_primary_type&conditions.5.operator=%3D&conditions.5.args=1`
     },
     {
       text: '⤷ remix',
-      href: `${editSearchBase}?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31%2C216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&conditions.4.field=release_group_secondary_type&conditions.4.operator=%3D&conditions.4.args=7`
+      href: `/search/edits?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=31%2C216&conditions.2.field=status&conditions.2.operator=%3D&conditions.2.args=2&conditions.4.field=release_group_secondary_type&conditions.4.operator=%3D&conditions.4.args=7`
     },
     {
       text: 'Added or edited mediums',
-      href: `${editSearchBase}?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=51&conditions.1.args=52&field=Please+choose+a+condition`
+      href: `/search/edits?auto_edit_filter=&order=desc&negation=0&combinator=and&conditions.0.field=editor&conditions.0.operator=%3D&conditions.0.name=${username}&conditions.1.field=type&conditions.1.operator=%3D&conditions.1.args=51&conditions.1.args=52&field=Please+choose+a+condition`
     }
   ];
 
@@ -448,29 +447,31 @@ function generateUserLinkList(url) {
     li.append(document.createTextNode('• '), a);
     return li;
   });
+
   return links;
 }
 
 function autoCheckEditorName() {
   const localStorageKey = 'afros_sublinks_editSearch_autoSelect';
   // Only run if coming from sublinks click
-  if (!localStorage.getItem(localStorageKey)) { return; }
+  if (!localStorage.getItem(localStorageKey)) return;
 
   const searchParamsError = 'Oops! It seems your search parameters are not correct, please double check your input!';
 
-  if (window.location.href.startsWith('https://musicbrainz.org/search/edits')) {
+  if (window.location.href.includes('/search/edits')) {
     const errorMsg = $(`p:contains(${searchParamsError})`);
 
     if (errorMsg.length > 0) {
       if (errorMsg.prev().children().attr('class') === 'field field-editor predicate-user') {
 
         errorMsg.text(`afro's sublinks: selecting editor username...`)
-          .css({'font-weight': 'bold',
-                'background-color': 'rgba(35, 245, 247, 0.3)',
-                'max-width': 'max-content',
-                'border-radius': '5px',
-                'padding': '5px'
-               });
+          .css({
+            'font-weight': 'bold',
+            'background-color': 'rgba(35, 245, 247, 0.3)',
+            'max-width': 'max-content',
+            'border-radius': '5px',
+            'padding': '5px'
+           });
 
         let editorUsername = $('.field.field-editor.predicate-user').first().find('input').val();
         let searchButton = $('.field.field-editor.predicate-user > .arg.autocomplete.editor').find('img');
@@ -534,7 +535,7 @@ let hoveredObject = null;
 let mouseX = 0;
 let mouseY = 0;
 
-const mbRegex = /musicbrainz\.(org|eu)\/(?:user\/([^\/]+)(?:\/)?$|\/user\/([^\/]+)\/.*|(.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|tag\/.*)$/;
+const mbRegex = /(?:beta\.)?musicbrainz\.(org|eu)\/(?:user\/([^\/]+)(?:\/)?$|\/user\/([^\/]+)\/.*|(.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|tag\/.*)$/;
 const digitalStoreRegex = /spotify\.com\/(?:intl-\w{2}\/)?album\/|apple\.com\/\w{2}\/album|deezer\.com\/(?:\w{2}\/)?album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release|bandcamp.com\/(track|album)/;
 
 const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
@@ -608,7 +609,7 @@ function getHeaderText(entity, text) {
 function getMBHeaderContent(hoveredObject, entity, entityHeaders) {
   const hoveredURL = hoveredObject.href;
   const header = entityHeaders[entity];
-  let iconURL = `https://musicbrainz.org/static/images/entity/${header.icon}`;
+  let iconURL = `/static/images/entity/${header.icon}`;
   let headerText = hoveredObject.textContent;
 
   if (entity === 'url') { //deal with url entity
@@ -632,7 +633,7 @@ function getMBHeaderContent(hoveredObject, entity, entityHeaders) {
   }
 
   //deal with subheader RG text, "see all versions of this release..."
-  if (entity === 'release-group' && ($(hoveredObject).parent().parent().hasClass('subheader') || $(hoveredObject).parent().parent().parent().hasClass('subheader'))) {
+  if (entity === 'release-group' && $(hoveredObject).closest('.subheader').length) {
     headerText = 'Release group';
   }
 
@@ -674,7 +675,7 @@ function getStoreHeaderContent(url) {
   }
   if (storeKey) {
     const header = storeHeaders[storeKey];
-    const iconURL = `https://musicbrainz.org/static/images/external-favicons/${header.icon}`;
+    const iconURL = `/static/images/external-favicons/${header.icon}`;
     return { icon: iconURL, text: header.name }
   }
   return null; //if no store match
@@ -704,7 +705,7 @@ function headerScrollAnimation(headerWrapper, headerText) {
     headerText.style.transform = 'translateX(0)';
 
     timers.start = setTimeout(() => {
-      if (!hovering) { return };
+      if (!hovering) return;
       const wrapperWidth = headerWrapper.clientWidth;
       const textWidth = headerText.scrollWidth;
       if (textWidth <= wrapperWidth + 1) {
@@ -716,7 +717,7 @@ function headerScrollAnimation(headerWrapper, headerText) {
       const durationMs = (distance / pxPerSecond) * 1000;
 
       function animateOnce() {
-        if (!hovering) { return };
+        if (!hovering) return;
         //set transition and move
         headerText.style.transition = `transform ${durationMs}ms linear`;
         //start the transform
@@ -725,7 +726,7 @@ function headerScrollAnimation(headerWrapper, headerText) {
         });
 
         timers.end = setTimeout(() => {
-          if (!hovering) { return };
+          if (!hovering) return;
           headerText.style.transition = 'none';
           headerText.style.transform = 'translateX(0)';
 
