@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.5.2.3
+// @version      2026.5.2.4
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
@@ -597,7 +597,7 @@ function getHeaderContent(hoveredObject, entityData) {
     let releaseInfoJSON = null;
     const ldScript = document.querySelector('script[type="application/ld+json"]');
     releaseInfoJSON = ldScript ? JSON.parse(ldScript.textContent) : null;
-    if (type === 'release-group' && location.pathname.includes('/release/') && releaseInfoJSON) {
+    if (type === 'release-group' && hoveredObject.textContent.startsWith('see all versions of this release') && location.pathname.includes('/release/') && releaseInfoJSON) {
       headerText = releaseInfoJSON.releaseOf.name;
     }
     else {
