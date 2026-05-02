@@ -5,10 +5,10 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.4.24.3
+// @version      2026.5.2.3
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
-// @require      https://code.jquery.com/jquery-4.0.0.min.js
+// @require      https://code.jquery.com/jquery-3.7.1.min.js
 // ==/UserScript==
 
 function css() {
@@ -92,9 +92,142 @@ function css() {
 }
 css();
 
+// global variables
+const stores = [
+  {
+    name: 'spotify',
+    regex: /https:\/\/open\.spotify\.com\/(?:intl-\w{2}\/)?(album|artist)\/(\w{22})/,
+    atisketKey: 'spf_id'
+  },
+  {
+    name: 'applemusic',
+    regex: /^https:\/\/music\.apple\.com\/\w{2}\/(album|artist)(?:(?:.*)?)\/(\d*)/,
+    atisketKey: 'itu_id'
+  },
+  {
+    name: 'itunes',
+    regex: /^https:\/\/itunes\.apple\.com\/\w{2}\/(album|artist)(?:(?:.*)?)\/(?:id)?(\d*)/,
+    atisketKey: 'itu_id'
+  },
+  {
+    name: 'deezer',
+    regex: /^https?:\/\/.*deezer\.com\/(?:\w{2}\/)?(album|artist)\/(\d*)/,
+    atisketKey: 'deez_id'
+  },
+  {
+    name: 'tidal',
+    regex: /^https?:\/\/.*tidal\.com\/(?:browse\/)?(album|artist)\/(\d*)/
+  },
+  {
+    name: 'beatport',
+    regex: /^https?:\/\/.*beatport\.com\/(release|artist)\/.*\/(\d*)/
+  },
+  {
+    name: 'discogs',
+    regex: /^https?:\/\/(?:www\.)?discogs\.com\/(?:.*)?(release|artist)\/(\d+)/
+  },
+  {
+    name: 'bandcamp',
+    regex: /^https?:\/\/([^.]+)\.bandcamp\.com\/(?:(track|album))?/
+  },
+  {
+    name: 'soundcloud',
+    regex: /soundcloud\.com\/([^\/]*)$/
+  },
+  {
+    name: 'qobuz',
+    regex: /https?:\/\/(?:www|open|play).qobuz.com\/(?:\w{2}-\w{2}?\/interpreter\/.*\/|interpreter\/.*\/|artist\/)(\d+)/
+  },
+  {
+    name: 'naver',
+    regex: /vibe\.naver\.com\/artist\/(\d+)/
+  }
+];
+const entityHeaders = {
+  artist: { name: 'Artist', icon: 'artist.svg' },
+  release: { name: 'Release', icon: 'release.svg' },
+  recording: { name: 'Recording', icon: 'recording.svg' },
+  'release-group': { name: 'Release Group', icon: 'release_group.svg' },
+  work: { name: 'Work', icon: 'work.svg' },
+  area: { name: 'Area', icon: 'area.svg' },
+  url: { name: 'URL entity', icon: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Mismatch_finder_link_icon.png' },
+  label: { name: 'Label', icon: 'label.svg' },
+  tag: { name: 'Tag', icon: 'tag.svg' },
+  genre: { name: 'Genre', icon: 'genre.svg' },
+  instrument: { name: 'Instrument', icon: 'instrument.svg' },
+  series: { name: 'Series', icon: 'series.svg' },
+  user: { name: 'Editor', icon: 'editor.svg' },
+};
+const storeHeaders = {
+  spotify: { name: 'Spotify', icon: 'spotify-32.png' },
+  itunes: { name: 'iTunes', icon: 'itunes-16.png' },
+  applemusic: { name: 'Apple Music', icon: 'applemusic-32.png' },
+  deezer: { name: 'Deezer', icon: 'deezer-32.png' },
+  beatport: { name: 'Beatport', icon: 'beatport-32.png' },
+  tidal: { name: 'Tidal', icon: 'tidal-32.png' },
+  discogs: { name: 'Discogs', icon: 'discogs-32.png' },
+  bandcamp: { name: 'Bandcamp', icon: 'bandcamp-32.png' },
+  soundcloud: { name: 'SoundCloud', icon: 'soundcloud-16.png' },
+  qobuz: { name: 'Qobuz', icon: 'qobuz-32.png'},
+  naver: { name: 'Naver', icon: 'navervibe-32.png' }
+};
+const sublinkDisplayNames = {
+  'aliases': 'Aliases',
+  'area': 'Area',
+  'artist': 'Artists',
+  'artists': 'Artists',
+  'cover-art': 'Cover art',
+  'details': 'Details',
+  'discids': 'Disc IDs',
+  'edit': 'Edit',
+  'edit-relationships': 'Edit rels.',
+  'edits': 'History',
+  'event': 'Events',
+  'events': 'Events',
+  'fingerprints': 'Fingerprints',
+  'instrument': 'Instruments',
+  'label': 'Labels',
+  'labels': 'Labels',
+  'open_edits': 'Open edits',
+  'place': 'Places',
+  'places': 'Places',
+  'ratings': 'Ratings',
+  'recording': 'Recordings',
+  'recordings': 'Recordings',
+  'relationships': 'Relationships',
+  'release': 'Releases',
+  'release-group': 'Release groups',
+  'release-groups': 'Release groups',
+  'releases': 'Releases',
+  'series': 'Series',
+  'tags': 'Tags',
+  'users': 'Users',
+  'work': 'Works',
+  'works': 'Works',
+};
+const mbRegexParts = {
+  base: /(?:beta\.|test\.)?musicbrainz\.(org|eu)/.source,
+  uuidEntities: /artist|event|label|place|recording|release|release-group|series|url|work|area|genre|instrument/.source,
+  nonUUIDEntities: /tag|user/.source,
+  UUID: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/.source
+}
+const mbRegex = new RegExp(`${mbRegexParts.base}/(?:(?:${mbRegexParts.uuidEntities})/${mbRegexParts.UUID}|(?:${mbRegexParts.nonUUIDEntities})/[^\/]+)/?$`);
+const digitalStoreRegexSources = stores.map(s => s.regex.source);
+const digitalStoreRegex = new RegExp(digitalStoreRegexSources.join('|'));
+const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
+
+function createLi(linkInfo, target = '_self') {
+  const li = $('<li>• <a></a></li>');
+  li.find('a')
+    .attr('href', linkInfo.href)
+    .attr('target', target)
+    .text(linkInfo.text);
+  return li;
+}
+
 function addSublinksLogo() {
   //prevent unstyled text
-  if (!document.querySelectorAll('[src="/static/scripts/supported-browser-check.js"]')[0]) return; //doesn't work with jquery selector
+  if (!document.querySelectorAll('[src="/static/scripts/supported-browser-check.js"]')[0]) return;
 
   // from https://www.svgrepo.com/svg/532198/list-ul-alt
   const svgIcon = `
@@ -137,244 +270,107 @@ function addSublinksLogo() {
 addSublinksLogo();
 
 function generateLinkList(hoveredURL) {
-  let links = [];
+  const linkOrder = [
+    'releases', 'recordings', 'release-groups', 'works', 'events',
+    'relationships', 'discids', 'cover-art', 'fingerprints',
+    'aliases', 'tags', 'ratings', 'details',
+    'edit', 'edit-relationships', 'open_edits', 'edits'
+  ];
+
+  const common = ['/aliases', '/tags', '/details', '/edit', '/open_edits', '/edits'];
+
   const patterns = {
-    'artist/': [
-      '/releases',
-      '/recordings',
-      '/works',
-      '/events',
-      '/relationships',
-      '/aliases',
-      '/tags',
-      '/ratings',
-      '/details',
-      '/edit',
-      '/open_edits',
-      '/edits',
-    ],
-    'recording/': [
-      '/fingerprints',
-      '/aliases',
-      '/tags',
-      '/ratings',
-      '/details',
-      '/edit',
-      '/open_edits',
-      '/edits',
-    ],
-    'release/': [
-      '/discids',
-      '/cover-art',
-      '/aliases',
-      '/tags',
-      '/details',
-      '/edit',
-      '/edit-relationships',
-      '/open_edits',
-      '/edits',
-    ],
-    'release-group/': [
-      '/aliases',
-      '/tags',
-      '/ratings',
-      '/details',
-      '/edit',
-      '/open_edits',
-      '/edits',
-    ],
-    'work/': [
-      '/aliases',
-      '/tags',
-      '/ratings',
-      '/details',
-      '/edit',
-      '/open_edits',
-      '/edits',
-    ],
-    'area/': [
-      '/artists',
-      '/events',
-      '/labels',
-      '/releases',
-      '/recordings',
-      '/places',
-      '/users',
-      '/works',
-      '/aliases',
-      '/tags',
-      '/details',
-      '/open_edits',
-      '/edits',
-    ],
-    'url/': [
-      '/edit',
-      '/open_edits',
-      '/edits'
-    ],
-    'label/': [
-      '/relationships',
-      '/aliases',
-      '/tags',
-      '/ratings',
-      '/details',
-      '/edit',
-      '/open_edits',
-      '/edits',
-    ],
-    'tag/': [
-      '/artist',
-      '/release-group',
-      '/release',
-      '/recording',
-      '/work',
-      '/label',
-      '/place',
-      '/area',
-      '/instrument',
-      '/series',
-      '/event',
-    ],
-    'genre/': [
-      '/aliases',
-      '/details',
-      '/open_edits',
-      '/edits',
-    ],
-    'instrument/': [
-      '/artists',
-      '/releases',
-      '/recordings',
-      '/aliases',
-      '/tags',
-      '/details',
-      '/open_edits',
-      '/edits',
-    ],
-    'series/': [
-      '/aliases',
-      '/tags',
-      '/details',
-      '/edit',
-      '/open_edits',
-      '/edits',
-    ],
+    'artist/': ['/releases', '/recordings', '/works', '/events', '/relationships', '/ratings', ...common],
+    'recording/': ['/fingerprints', '/ratings', ...common],
+    'release/': ['/discids', '/cover-art', '/edit-relationships', ...common],
+    'release-group/': ['/ratings', ...common],
+    'work/': ['/ratings', ...common],
+    'label/': ['/relationships', '/ratings', ...common],
+    'area/': ['/artists', '/events', '/labels', '/releases', '/recordings', '/places', '/users', '/works', ...common],
+    'tag/': ['/artist', '/release-group', '/release', '/recording', '/work', '/label', '/place', '/area', '/instrument', '/series', '/event'],
+    'genre/': ['/aliases', '/details', '/open_edits', '/edits'],
+    'instrument/': ['/artists', '/releases', '/recordings', ...common],
+    'series/': common,
+    'url/': ['/edit', '/open_edits', '/edits']
   };
 
-  for (const entity in patterns) {
-    if (hoveredURL.includes(entity)) {
-      links = patterns[entity].map((suffix) => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = hoveredURL + suffix;
-        a.textContent = suffix.replace('/', '');
-        let aTextMap = new Map([
-          //name of menu options
-          ['aliases', 'Aliases'],
-          ['area', 'Area'],
-          ['artist', 'Artists'], //singular into plural for /tag matching
-          ['artists', 'Artists'],
-          ['cover-art', 'Cover art'],
-          ['details', 'Details'],
-          ['discids', 'Disc IDs'],
-          ['edit', 'Edit'],
-          ['edit-relationships', 'Edit rels.'],
-          ['edits', 'History'],
-          ['event', 'Events'],
-          ['events', 'Events'],
-          ['fingerprints', 'Fingerprints'],
-          ['instrument', 'Instruments'],
-          ['label', 'Labels'],
-          ['labels', 'Labels'],
-          ['open_edits', 'Open edits'],
-          ['place', 'Places'],
-          ['places', 'Places'],
-          ['ratings', 'Ratings'],
-          ['recording', 'Recordings'],
-          ['recordings', 'Recordings'],
-          ['relationships', 'Relationships'],
-          ['release', 'Releases'],
-          ['release-group', 'Release groups'],
-          ['release-groups', 'Release groups'],
-          ['releases', 'Releases'],
-          ['series', 'Series'],
-          ['tags', 'Tags'],
-          ['users', 'Users'],
-          ['work', 'Works'],
-          ['works', 'Works'],
-        ]);
-        if (aTextMap.has(a.textContent)) {
-          a.textContent = aTextMap.get(suffix.replace('/', ''));
-        }
-        a.target = '_self';
-        li.append(document.createTextNode('• '), a);
-        return li;
-      });
-      break;
-    }
-  }
-  return links;
+  const match = Object.keys(patterns).find(key => hoveredURL.includes(key));
+  if (!match) return [];
+
+  // sort them in the same order as the mb tabs
+  const sortedSuffixes = patterns[match].sort((a, b) => {
+    return linkOrder.indexOf(a.replace('/', '')) - linkOrder.indexOf(b.replace('/', ''));
+  });
+
+  return sortedSuffixes.map(suffix => {
+    const key = suffix.replace('/', '');
+    return createLi({
+      href: hoveredURL + suffix,
+      text: sublinkDisplayNames[key] || key
+    });
+  });
 }
 
 function matchDigitalStores(url) {
-  const stores = [
-    { name: 'spotify', regex: /https:\/\/open\.spotify\.com\/(?:intl-\w{2}\/)?album\/(\w{22})/, atisketKey: 'spf_id' },
-    { name: 'itunes', regex: /^https:\/\/(?:music\.|itunes\.)apple\.com\/\w{2}\/album(?:(?:.*)?)\/(?:id)?(\d*)/, atisketKey: 'itu_id' },
-    { name: 'deezer', regex: /^https?:\/\/.*deezer\.com\/(?:\w{2}\/)?album\/(\d*)/, atisketKey: 'deez_id' },
-    { name: 'beatport', regex: /^https?:\/\/.*beatport\.com\/release\/.*\/(\d*)/ },
-    { name: 'tidal', regex: /^https?:\/\/.*tidal\.com\/(?:browse\/)?album\/(\d*)/ },
-    { name: 'discogs', regex: /^https?:\/\/(?:www\.)?discogs\.com\/(?:.*)?release\/(\d+)(?:-.*|\/.*)?/ },
-    { name: 'bandcamp', regex: /^https?:\/\/(?:.*).bandcamp.com\/(?:(track|album))(?:.*)$/ }
-  ];
 
-  for (const store of stores) {
-    const match = url.match(store.regex);
-    if (match) {
-      const uid = match[1];
-      const platform = store.name;
-      let headerPlatform = platform;
+  const storeMatch = stores.find(s => url.match(s.regex));
+  if (!storeMatch) return [];
 
-      // change headerPlatform based on the subdomain for apple links
-      if (platform === 'itunes' && url.includes('music.apple.com')) {
-        headerPlatform = 'applemusic';
-      }
+  const rawMatch = url.match(storeMatch.regex);
+  const platform = storeMatch.name;
 
-      let links = [];
-
-      if (platform === 'discogs') { //deal with discogs
-        links.push({ href: `https://discogs.com/release/${uid}/history`, text: 'Show history' });
-      }
-
-      else if (platform === 'bandcamp') { //deal with bandcamp
-        links.push({ href: `https://harmony.pulsewidth.org.uk/release?url=${url}&category=preferred`, text: 'Harmony' });
-      }
-
-       else {
-        // Harmony for everything else
-        links.push(
-          { href: `https://harmony.pulsewidth.org.uk/release?${platform}=${uid}&category=preferred`, text: 'Harmony' },
-        );
-      }
-
-
-      if (store.atisketKey) { // except if atisketKey exists, add atisket link
-        const atisketURL = `https://atisket.pulsewidth.org.uk/?${store.atisketKey}=${uid}`;
-        links.push({ href: atisketURL, text: 'a-tisket' });
-      }
-
-      return links.map(linkInfo => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = linkInfo.href;
-        a.textContent = linkInfo.text;
-        a.target = '_blank';
-        li.append('• ', a);
-        return li;
-      });
-    }
+  function getCorrectIDHelper(platform, rawMatch) {
+    const firstGroup = ['bandcamp', 'soundcloud', 'qobuz', 'naver'];
+    return firstGroup.includes(platform) ? rawMatch[1] : rawMatch[2];
   }
 
-  return [];
+  const data = {
+    url: url,
+    platform: platform,
+    id: getCorrectIDHelper(platform, rawMatch),
+    isArtist: platform === 'bandcamp' ? !rawMatch[2] : !['album', 'track'].includes(rawMatch[1]),
+    atisketKey: storeMatch.atisketKey
+  };
+
+  return getLinksForPlatform(data).map(link => createLi(link, '_blank'));
+}
+
+function getLinksForPlatform(data) {
+  const links = [];
+
+  const samblProviders = ['spotify', 'applemusic', 'deezer', 'tidal', 'bandcamp', 'soundcloud', 'naver', 'qobuz'];
+  if (data.isArtist && samblProviders.includes(data.platform)) {
+    links.push({
+      text: 'SAMBL',
+      href: `https://sambl.lioncat6.com/artist?provider_id=${data.id}&provider=${data.platform}`
+    });
+  }
+
+  const harmonyProviders = ['deezer', 'applemusic', 'itunes', 'spotify', 'tidal', 'bandcamp', 'beatport', 'mora', 'ototoy'];
+  if (!data.isArtist && harmonyProviders.includes(data.platform)) {
+    let harmonyURL = `https://harmony.pulsewidth.org.uk/release?`;
+    if (data.platform === 'bandcamp') {
+      harmonyURL += `url=${encodeURIComponent(data.url)}&category=preferred`;
+    } else {
+      const key = (data.platform === 'applemusic' || data.platform === 'itunes') ? 'itunes' : data.platform;
+      harmonyURL += `${key}=${data.id}&category=preferred`;
+    }
+    links.push({ text: 'Harmony', href: harmonyURL });
+  }
+
+  const atisketProviders = ['spotify', 'itunes', 'applemusic', 'deezer'];
+  if (!data.isArtist && atisketProviders.includes(data.platform) && data.atisketKey) {
+    links.push({
+      text: 'a-tisket',
+      href: `https://atisket.pulsewidth.org.uk/?${data.atisketKey}=${data.id}`
+    });
+  }
+
+  if (!data.isArtist && data.platform === 'discogs') {
+    links.push({ text: 'Show history', href: `https://discogs.com/release/${data.id}/history` });
+  }
+
+  return links;
 }
 
 function generateUserLinkList(url) {
@@ -430,21 +426,13 @@ function generateUserLinkList(url) {
     }
   ];
 
+  function setSublinksLocalStorage() {
+    localStorage.setItem('afros_sublinks_editSearch_autoSelect', true);
+  }
+
   links = linkOptions.map((linkInfo) => {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = linkInfo.href;
-    a.textContent = linkInfo.text;
-    a.target = '_self';
-
-    //temporary localStorage flag
-    function setSublinksLocalStorage() {
-      localStorage.setItem('afros_sublinks_editSearch_autoSelect', 'true');
-    }
-    a.addEventListener('click', setSublinksLocalStorage);
-    a.addEventListener('auxclick', setSublinksLocalStorage);
-
-    li.append(document.createTextNode('• '), a);
+    const li = createLi(linkInfo, '_self');
+    li.find('a').on('click auxclick', setSublinksLocalStorage);
     return li;
   });
 
@@ -471,7 +459,7 @@ function autoCheckEditorName() {
             'max-width': 'max-content',
             'border-radius': '5px',
             'padding': '5px'
-           });
+          });
 
         let editorUsername = $('.field.field-editor.predicate-user').first().find('input').val();
         let searchButton = $('.field.field-editor.predicate-user > .arg.autocomplete.editor').find('img');
@@ -519,26 +507,18 @@ function autoCheckEditorName() {
 autoCheckEditorName();
 
 function createMovableContainer() {
-  let sublinksContainer = document.createElement('div');
-  $('body').append(sublinksContainer);
-  sublinksContainer.setAttribute('class', 'sublinksContainer');
-  sublinksContainer.setAttribute('id', 'sublinksContainer');
-  sublinksContainer.style.display = 'none';
-
-  let list = document.createElement('ul');
-  list.setAttribute('id', 'linkList');
-  sublinksContainer.appendChild(list);
+  const container = $(`
+    <div id="sublinksContainer" class="sublinksContainer" style="display: none">
+      <ul id="linkList"></ul>
+    </div>
+  `);
+  $('body').append(container);
 }
 createMovableContainer();
 
 let hoveredObject = null;
 let mouseX = 0;
 let mouseY = 0;
-
-const mbRegex = /(?:beta\.)?musicbrainz\.(org|eu)\/(?:user\/([^\/]+)(?:\/)?$|\/user\/([^\/]+)\/.*|(.*\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|tag\/.*)$/;
-const digitalStoreRegex = /spotify\.com\/(?:intl-\w{2}\/)?album\/|apple\.com\/\w{2}\/album|deezer\.com\/(?:\w{2}\/)?album|beatport\.com\/release|tidal\.com\/album|discogs\.com\/(?:.*)?release|bandcamp.com\/(track|album)/;
-
-const combinedRegex = new RegExp(`${mbRegex.source}|${digitalStoreRegex.source}`);
 
 // event listeners at document level
 document.addEventListener('mouseover', (e) => {
@@ -563,123 +543,88 @@ document.addEventListener('mouseleave', (e) => {
   }
 });
 
-const entityHeaders = {
-  artist: { name: 'Artist', icon: 'artist.svg' },
-  release: { name: 'Release', icon: 'release.svg' },
-  recording: { name: 'Recording', icon: 'recording.svg' },
-  'release-group': { name: 'Release Group', icon: 'release_group.svg' },
-  work: { name: 'Work', icon: 'work.svg' },
-  area: { name: 'Area', icon: 'area.svg' },
-  url: { name: 'URL entity', icon: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Mismatch_finder_link_icon.png' },
-  label: { name: 'Label', icon: 'label.svg' },
-  tag: { name: 'Tag', icon: 'tag.svg' },
-  genre: { name: 'Genre', icon: 'genre.svg' },
-  instrument: { name: 'Instrument', icon: 'instrument.svg' },
-  series: { name: 'Series', icon: 'series.svg' },
-  user: { name: 'Editor', icon: 'editor.svg'},
-};
+function extractEntity(url) {
+  const mbEntities = Object.keys(entityHeaders);
+  const streamingPlats = Object.keys(storeHeaders);
 
-const storeHeaders = {
-  spotify: { name: 'Spotify', icon: 'spotify-32.png' },
-  itunes: { name: 'iTunes', icon: 'itunes-16.png' },
-  'applemusic': { name: 'Apple Music', icon: 'applemusic-32.png' },
-  deezer: { name: 'Deezer', icon: 'deezer-32.png' },
-  beatport: { name: 'Beatport', icon: 'beatport-32.png' },
-  tidal: { name: 'Tidal', icon: 'tidal-32.png' },
-  discogs: { name: 'Discogs', icon: 'discogs-32.png' },
-  bandcamp: {name: 'Bandcamp', icon: 'bandcamp-32.png' },
-};
+  const parsedURL = new URL(url);
+  const hostname = parsedURL.hostname;
+  const pathParts = parsedURL.pathname.split('/').filter(n => n);
+  let entity = [];
 
-function getHeaderText(entity, text) {
-  const uuidPattern = '\\s(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})';
-  let result = '';
-
-  const entityNames = Object.keys(entityHeaders);
-
-  if (entityNames.includes(entity)) {
-    const regex = new RegExp(entity + uuidPattern);
-
-    if (text.search(regex) > -1) {
-      result = entityHeaders[entity].name;
-    }
-  }
-  return result;
-}
-
-function getMBHeaderContent(hoveredObject, entity, entityHeaders) {
-  const hoveredURL = hoveredObject.href;
-  const header = entityHeaders[entity];
-  let iconURL = `/static/images/entity/${header.icon}`;
-  let headerText = hoveredObject.textContent;
-
-  if (entity === 'url') { //deal with url entity
-    iconURL = header.icon;
-    headerText = header.name;
-  }
-
-  if (entity === 'user') { //deal with editors
-    const userMatch = hoveredURL.match(/\/user\/([^\/]+)/);
-    if (userMatch && userMatch[1]) {
-      try {
-        headerText = decodeURIComponent(userMatch[1]); //user actual username
-      } catch (e) {
-        headerText = userMatch[1];
-        console.log('Failed to decode username, using encoded string');
-      }
-
-    } else {
-      headerText = header.name; //or generic "Editor"
-    }
-  }
-
-  //deal with subheader RG text, "see all versions of this release..."
-  if (entity === 'release-group' && $(hoveredObject).closest('.subheader').length) {
-    headerText = 'Release group';
-  }
-
-  //deal with cover art links
-  const imageElem = hoveredObject.querySelector('img');
-  if ((entity === 'release-group' || entity === 'release') && imageElem) {
-    const imageText = imageElem.alt || imageElem.title;
-    if (imageText) {
-      headerText = imageText;
-    } else {
-      headerText = hoveredObject.title || headerText;
-    }
-  }
-
-  const newHeaderText = getHeaderText(entity, hoveredObject.textContent);
-  if (newHeaderText) {
-    headerText = newHeaderText;
-  }
-  return { icon: iconURL, text: headerText };
-}
-
-function getStoreHeaderContent(url) {
-  let storeKey = null;
-  //deal with apple stores first
-  if (url.includes('music.apple.com')) {
-    storeKey = 'applemusic';
-  }
-  else if (url.includes('itunes.apple.com')) {
-    storeKey = 'itunes';
+  if (hostname.includes('musicbrainz')) {
+    entity.push('mb');
+    const type = pathParts.find(part => mbEntities.includes(part));
+    entity.push(type);
   }
   else {
-    for (const store in storeHeaders) {
-      if (store === 'itunes' || store === 'applemusic') continue; //ignore apple, has been dealt with atp
-      if (url.includes(store)) {
-        storeKey = store;
-        break;
-      }
+    const platform = streamingPlats.find(plat => {
+      if (plat === 'applemusic') return hostname.includes('music.apple.com');
+      if (plat === 'itunes') return hostname.includes('itunes.apple.com');
+      return hostname.includes(plat);
+    });
+    if (platform) {
+      entity.push(platform);
+
+      if (pathParts.includes('artist')) entity.push('artist');
+      else if (pathParts.includes('release') || pathParts.includes('album')) entity.push('release');
     }
   }
-  if (storeKey) {
-    const header = storeHeaders[storeKey];
-    const iconURL = `/static/images/external-favicons/${header.icon}`;
-    return { icon: iconURL, text: header.name }
-  }
-  return null; //if no store match
+  return entity.length > 0 ? entity : null;
 }
+
+function generateLinks(hoveredObject) {
+  const hoveredURL = hoveredObject.href;
+  const entityType = extractEntity(hoveredURL);
+
+  if (!entityType) return [];
+  const [platform, type] = entityType;
+
+  if (type === 'user') return generateUserLinkList(hoveredURL);
+  if (platform === 'mb' && type !== 'user') return generateLinkList(hoveredURL);
+  if (platform !== 'mb') return matchDigitalStores(hoveredURL);
+}
+
+function getHeaderContent(hoveredObject, entityData) {
+  const [platform, type] = entityData;
+
+  if (platform === 'mb') {
+    const header = entityHeaders[type];
+    let iconURL = type === 'url' ? header.icon : `/static/images/entity/${header.icon}`;
+
+    let headerText = '';
+
+    let releaseInfoJSON = null;
+    const ldScript = document.querySelector('script[type="application/ld+json"]');
+    releaseInfoJSON = ldScript ? JSON.parse(ldScript.textContent) : null;
+    if (type === 'release-group' && location.pathname.includes('/release/') && releaseInfoJSON) {
+      headerText = releaseInfoJSON.releaseOf.name;
+    }
+    else {
+      headerText = hoveredObject.textContent;
+    }
+
+    if (type === 'user') {
+      const userMatch = hoveredObject.href.match(/\/user\/([^\/]+)/);
+      headerText = userMatch ? decodeURIComponent(userMatch[1]) : header.name;
+    }
+
+    const img = hoveredObject.querySelector('img');
+    if (img && (type === 'release' || type === 'release-group')) {
+      headerText = img.alt || img.title || hoveredObject.title || headerText;
+    }
+
+    return { icon: iconURL, text: headerText };
+  }
+  else {
+    const header = storeHeaders[platform];
+    return {
+      icon: `/static/images/external-favicons/${header.icon}`,
+      text: header.name
+    };
+  }
+}
+
 
 //animate the header text, scroll until the end of the string, pause for 2s, then reset and loop
 function headerScrollAnimation(headerWrapper, headerText) {
@@ -753,68 +698,39 @@ function headerScrollAnimation(headerWrapper, headerText) {
 }
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Shift' && hoveredObject && combinedRegex.test(hoveredObject.href)) {
-    let listItems = [];
-    const hoveredURL = hoveredObject.href;
-    let headerContent = null;
+  if (event.key === 'Shift' && hoveredObject) {
+    const entityData = extractEntity(hoveredObject.href);
+    if (!entityData) return;
 
-    if (hoveredURL.includes('/user')) {
-      listItems = generateUserLinkList(hoveredURL);
-      if (listItems.length > 0) {
-        headerContent = getMBHeaderContent(hoveredObject, 'user', entityHeaders);
-      }
-    }
+    const listItems = generateLinks(hoveredObject);
+    const headerContent = getHeaderContent(hoveredObject, entityData);
 
-    else if (mbRegex.test(hoveredURL)) { //match MB entities
-      listItems = generateLinkList(hoveredURL);
-      for (const entity in entityHeaders) {
-        if (hoveredURL.includes(`/${entity}/`)) {
-          headerContent = getMBHeaderContent(hoveredObject, entity, entityHeaders)
-          break;
-        }
-      }
-    }
-    else if (digitalStoreRegex.test(hoveredURL)) { //match digital stores
-      listItems = matchDigitalStores(hoveredURL);
-      headerContent = getStoreHeaderContent(hoveredURL)
-    }
+    if (listItems && listItems.length > 0) {
+      const container = $('#sublinksContainer');
+      const list = $('#linkList');
 
-    if (listItems.length > 0) {
-      let container = document.getElementById('sublinksContainer');
-      let list = document.getElementById('linkList');
-      list.innerHTML = '';
-      container.style.display = 'block';
-      container.style.left = mouseX + 10 + 'px';
-      container.style.top = mouseY + 10 + 'px';
+      list.empty();
+      container.css({
+        display: 'block',
+        left: (mouseX + 10) + 'px',
+        top: (mouseY + 10) + 'px'
+      });
 
       if (headerContent) {
-        // scroll text
-        const headerDiv = document.createElement('div');
-        headerDiv.style.display = 'flex';
-        headerDiv.style.alignItems = 'center';
+        const headerDiv = $('<div style="display: flex; align-items: center;"></div>');
+        const headerIcon = $(`<img src="${headerContent.icon}" style="height: 15px; width: 15px; margin-right: 5px;">`);
+        const headerWrapper = $('<div class="sublinks-header-text-wrapper"></div>');
+        const headerText = $('<span class="sublinks-header-text"></span>').text(headerContent.text);
 
-        const headerIcon = document.createElement('img');
-        headerIcon.src = headerContent.icon;
-        headerIcon.style.height = '15px';
-        headerIcon.style.width = '15px';
-        headerIcon.style.marginRight = '5px';
+        headerWrapper.append(headerText);
+        headerDiv.append(headerIcon, headerWrapper);
 
-        const headerWrapper = document.createElement('div');
-        headerWrapper.className = 'sublinks-header-text-wrapper';
+        list.append(headerDiv, $('<hr>'));
 
-        const headerText = document.createElement('span');
-        headerText.className = 'sublinks-header-text';
-        headerText.textContent = headerContent.text;
-
-        headerWrapper.appendChild(headerText);
-        headerDiv.appendChild(headerIcon);
-        headerDiv.appendChild(headerWrapper);
-        list.appendChild(headerDiv);
-        list.appendChild(document.createElement('hr'));
-
-        headerScrollAnimation(headerWrapper, headerText);
+        headerScrollAnimation(headerWrapper[0], headerText[0]);
       }
-      listItems.forEach((item) => list.appendChild(item));
+
+      list.append(listItems);
     }
   }
 });
