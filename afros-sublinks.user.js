@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.5.2.5
+// @version      2026.5.3.1
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
@@ -120,7 +120,7 @@ const stores = [
   },
   {
     name: 'beatport',
-    regex: /^https?:\/\/.*beatport\.com\/(release|artist)\/.*\/(\d*)/
+    regex: /^https?:\/\/(?:(?:www|pro|classic)\.)?beatport\.com(?:\/\w{2})?\/(release|artist)\/[^\/]+\/(\d+)/
   },
   {
     name: 'discogs',
@@ -132,15 +132,15 @@ const stores = [
   },
   {
     name: 'soundcloud',
-    regex: /soundcloud\.com\/([^\/]*)$/
+    regex: /soundcloud\.com\/([^\/]*)\/?$/
   },
   {
     name: 'qobuz',
-    regex: /https?:\/\/(?:www|open|play).qobuz.com\/(?:\w{2}-\w{2}?\/interpreter\/.*\/|interpreter\/.*\/|artist\/)(\d+)/
+    regex: /https?:\/\/(?:www|open|play).qobuz.com\/(?:\w{2}-\w{2}\/)?(interpreter|artist|album)\/(?:[^\/]+)?\/(\d+|[^\/]+)$/
   },
   {
     name: 'naver',
-    regex: /vibe\.naver\.com\/artist\/(\d+)/
+    regex: /https?:\/\/vibe\.naver\.com\/(artist)\/(\d+)/
   }
 ];
 const entityHeaders = {
@@ -327,7 +327,7 @@ function matchDigitalStores(url) {
   const platform = storeMatch.name;
 
   function getCorrectIDHelper(platform, rawMatch) {
-    const firstGroup = ['bandcamp', 'soundcloud', 'qobuz', 'naver'];
+    const firstGroup = ['bandcamp', 'soundcloud'];
     return firstGroup.includes(platform) ? rawMatch[1] : rawMatch[2];
   }
 
@@ -335,7 +335,7 @@ function matchDigitalStores(url) {
     url: url,
     platform: platform,
     id: getCorrectIDHelper(platform, rawMatch),
-    isArtist: platform === 'bandcamp' ? !rawMatch[2] : !['album', 'track'].includes(rawMatch[1]),
+    isArtist: platform === 'bandcamp' ? !rawMatch[2] : !['album', 'track', 'release'].includes(rawMatch[1]),
     atisketKey: storeMatch.atisketKey
   };
 
@@ -351,6 +351,13 @@ function getLinksForPlatform(data) {
       text: 'SAMBL',
       href: `https://sambl.lioncat6.com/artist?provider_id=${data.id}&provider=${data.platform}`
     });
+  }
+
+  if (!data.isArtist && samblProviders.includes(data.platform)) {
+    links.push({
+      text: 'SAMBL',
+      href: `https://sambl.lioncat6.com/find?query=${data.url}`
+    })
   }
 
   const harmonyProviders = ['deezer', 'applemusic', 'itunes', 'spotify', 'tidal', 'bandcamp', 'beatport', 'mora', 'ototoy'];
@@ -557,6 +564,7 @@ function extractEntity(url) {
   const parsedURL = new URL(url);
   const hostname = parsedURL.hostname;
   const pathParts = parsedURL.pathname.split('/').filter(n => n);
+
   let entity = [];
 
   if (hostname.includes('musicbrainz')) {
@@ -570,9 +578,9 @@ function extractEntity(url) {
       if (plat === 'itunes') return hostname.includes('itunes.apple.com');
       return hostname.includes(plat);
     });
+
     if (platform) {
       entity.push(platform);
-
       if (pathParts.includes('artist')) entity.push('artist');
       else if (pathParts.includes('release') || pathParts.includes('album')) entity.push('release');
     }
@@ -604,10 +612,15 @@ function getHeaderContent(hoveredObject, entityData) {
     if (type === 'url') return { icon: iconURL, text: header.name };
 
     let releaseInfoJSON = null;
+    const hovTextStartsWithCheck = hoveredObject.textContent.startsWith('see all versions of this release');
     const ldScript = document.querySelector('script[type="application/ld+json"]');
     releaseInfoJSON = ldScript ? JSON.parse(ldScript.textContent) : null;
-    if (type === 'release-group' && hoveredObject.textContent.startsWith('see all versions of this release') && location.pathname.includes('/release/') && releaseInfoJSON) {
+
+    if (type === 'release-group' && hovTextStartsWithCheck && location.pathname.includes('/release/') && releaseInfoJSON) {
       headerText = releaseInfoJSON.releaseOf.name;
+    }
+    else if (hovTextStartsWithCheck && !releaseInfoJSON) {
+      headerText = 'Release group';
     }
 
     if (type === 'user') {
