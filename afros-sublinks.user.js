@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.5.2.4
+// @version      2026.5.2.5
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
@@ -157,6 +157,8 @@ const entityHeaders = {
   instrument: { name: 'Instrument', icon: 'instrument.svg' },
   series: { name: 'Series', icon: 'series.svg' },
   user: { name: 'Editor', icon: 'editor.svg' },
+  event: { name: 'Event', icon: 'event.svg'},
+  place: { name: 'Place', icon: 'place.svg'}
 };
 const storeHeaders = {
   spotify: { name: 'Spotify', icon: 'spotify-32.png' },
@@ -177,6 +179,7 @@ const sublinkDisplayNames = {
   'artist': 'Artists',
   'artists': 'Artists',
   'cover-art': 'Cover art',
+  'event-art': 'Event art',
   'details': 'Details',
   'discids': 'Disc IDs',
   'edit': 'Edit',
@@ -188,7 +191,9 @@ const sublinkDisplayNames = {
   'instrument': 'Instruments',
   'label': 'Labels',
   'labels': 'Labels',
+  'map': 'Map',
   'open_edits': 'Open edits',
+  'performances': 'Performances',
   'place': 'Places',
   'places': 'Places',
   'ratings': 'Ratings',
@@ -271,8 +276,8 @@ addSublinksLogo();
 
 function generateLinkList(hoveredURL) {
   const linkOrder = [
-    'releases', 'recordings', 'release-groups', 'works', 'events',
-    'relationships', 'discids', 'cover-art', 'fingerprints',
+    'releases', 'recordings', 'release-groups', 'works', 'events', 'performances', 'map',
+    'relationships', 'discids', 'cover-art', 'event-art', 'fingerprints',
     'aliases', 'tags', 'ratings', 'details',
     'edit', 'edit-relationships', 'open_edits', 'edits'
   ];
@@ -291,7 +296,9 @@ function generateLinkList(hoveredURL) {
     'genre/': ['/aliases', '/details', '/open_edits', '/edits'],
     'instrument/': ['/artists', '/releases', '/recordings', ...common],
     'series/': common,
-    'url/': ['/edit', '/open_edits', '/edits']
+    'url/': ['/edit', '/open_edits', '/edits'],
+    'event/': ['/event-art', ...common],
+    'place/': ['/events', '/performances', '/map', ...common]
   };
 
   const match = Object.keys(patterns).find(key => hoveredURL.includes(key));
@@ -592,16 +599,15 @@ function getHeaderContent(hoveredObject, entityData) {
     const header = entityHeaders[type];
     let iconURL = type === 'url' ? header.icon : `/static/images/entity/${header.icon}`;
 
-    let headerText = '';
+    let headerText = hoveredObject.textContent;
+
+    if (type === 'url') return { icon: iconURL, text: header.name };
 
     let releaseInfoJSON = null;
     const ldScript = document.querySelector('script[type="application/ld+json"]');
     releaseInfoJSON = ldScript ? JSON.parse(ldScript.textContent) : null;
     if (type === 'release-group' && hoveredObject.textContent.startsWith('see all versions of this release') && location.pathname.includes('/release/') && releaseInfoJSON) {
       headerText = releaseInfoJSON.releaseOf.name;
-    }
-    else {
-      headerText = hoveredObject.textContent;
     }
 
     if (type === 'user') {
