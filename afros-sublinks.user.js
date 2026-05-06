@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.5.6.1
+// @version      2026.5.6.2
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
@@ -136,11 +136,19 @@ const stores = [
   },
   {
     name: 'qobuz',
-    regex: /https?:\/\/(?:www|open|play).qobuz.com\/(?:\w{2}-\w{2}\/)?(interpreter|artist|album)\/(?:[^\/]+)?\/(\d+|[^\/]+)$/
+    regex: /https?:\/\/(?:www|open|play).qobuz.com\/(?:\w{2}-\w{2}\/)?(interpreter|artist|album)\/(?:[^\/]+\/)?(\d+|[^\/]+)$/
   },
   {
     name: 'naver',
     regex: /https?:\/\/vibe\.naver\.com\/(artist)\/(\d+)/
+  },
+  {
+    name: 'mora',
+    regex: /https?:\/\/mora\.jp\/(package|artist)\/(\d+\/[\w-]+?|\d+)\/(?:\?.*)?/
+  },
+  {
+    name: 'ototoy',
+    regex: /https?:\/\/ototoy\.jp\/_\/default\/(p|a)\/(\d+)\/?/
   }
 ];
 const entityHeaders = {
@@ -171,7 +179,9 @@ const storeHeaders = {
   bandcamp: { name: 'Bandcamp', icon: 'bandcamp-32.png' },
   soundcloud: { name: 'SoundCloud', icon: 'soundcloud-16.png' },
   qobuz: { name: 'Qobuz', icon: 'qobuz-32.png'},
-  naver: { name: 'Naver', icon: 'navervibe-32.png' }
+  naver: { name: 'Naver', icon: 'navervibe-32.png' },
+  mora: { name: 'mora', icon: 'mora-32.png' },
+  ototoy: { name: 'Ototoy', icon: 'ototoy-32.png' }
 };
 const sublinkDisplayNames = {
   'aliases': 'Aliases',
@@ -335,7 +345,7 @@ function matchDigitalStores(url) {
     url: url,
     platform: platform,
     id: getCorrectIDHelper(platform, rawMatch),
-    isArtist: platform === 'bandcamp' ? !rawMatch[2] : !['album', 'track', 'release'].includes(rawMatch[1]),
+    isArtist: platform === 'bandcamp' ? !rawMatch[2] : ['artist', 'interpreter', 'a'].includes(rawMatch[1]),
     atisketKey: storeMatch.atisketKey
   };
 
