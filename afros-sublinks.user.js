@@ -96,8 +96,7 @@ css();
 const stores = [
   {
     name: 'spotify',
-    regex: /https:\/\/open\.spotify\.com\/(?:intl-\w{2}\/)?(album|artist)\/(\w{22})/,
-    atisketKey: 'spf_id'
+    regex: /https:\/\/open\.spotify\.com\/(?:intl-\w{2}\/)?(album|artist)\/(\w{22})/
   },
   {
     name: 'applemusic',
