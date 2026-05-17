@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.5.9.1
+// @version      2026.5.16.1
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
@@ -379,6 +379,7 @@ function getLinksForPlatform(data) {
       harmonyURL += `${key}=${data.id}&category=preferred`;
     }
     links.push({ text: 'Harmony', href: harmonyURL });
+    links.push({ text: 'Harmony (isolated)', href: harmonyURL.replace('&category=preferred', '') });
   }
 
   const atisketProviders = ['spotify', 'itunes', 'applemusic', 'deezer'];
