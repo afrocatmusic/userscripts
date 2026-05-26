@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.5.16.1
+// @version      2026.5.25.1
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
@@ -369,7 +369,7 @@ function getLinksForPlatform(data) {
     })
   }
 
-  const harmonyProviders = ['deezer', 'applemusic', 'itunes', 'spotify', 'tidal', 'bandcamp', 'beatport', 'mora', 'ototoy', 'discogs'];
+  const harmonyProviders = ['deezer', 'applemusic', 'itunes', 'spotify', 'tidal', 'bandcamp', 'qobuz', 'beatport', 'mora', 'ototoy', 'discogs'];
   if (!data.isArtist && harmonyProviders.includes(data.platform)) {
     let harmonyURL = `https://harmony.pulsewidth.org.uk/release?`;
     if (data.platform === 'bandcamp') {
