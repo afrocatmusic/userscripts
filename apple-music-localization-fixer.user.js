@@ -8,12 +8,16 @@
 // @match       https://*.musicbrainz.org/artist/*
 // @match       https://*.musicbrainz.eu/artist/*
 // @grant       none
-// @version     2026.07.21.4
+// @version     2026.07.21.6
 // @author      afro
 // @icon        https://music.apple.com/assets/favicon/favicon-16.png
 // @description Edits the localization of Apple Music and iTunes URLs to match the entity's area
 // @run-at      document-idle
 // ==/UserScript==
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function addToUI() {
   const artistPropertiesSection = document.querySelector('dl.properties');
@@ -36,9 +40,6 @@ async function addToUI() {
 
   // run if there's more than one link, or if the only link is not the correct localization
   if (amLiElems.length > 1 || !amLiElems[0].firstChild.href.includes(`/${artistCountryCode}/`)) {
-    const rels = await apiCall(artistMBID);
-    // skip any rels with the correct localization
-    const targetRels = rels.filter((e) => !e.url.includes(`/${artistCountryCode}/`));
     const lastAMLink = amLiElems[amLiElems.length - 1];
 
     const li = document.createElement('li');
@@ -65,10 +66,17 @@ async function addToUI() {
       return `/url/${urlMBID}/edit?edit-url.url=${newURL}&edit-url.edit_note=${encodeURIComponent(editNote)}`;
     }
 
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      const rels = await apiCall(artistMBID);
+      // skip any rels with the correct localization
+      const targetRels = rels.filter((e) => !e.url.includes(`/${artistCountryCode}/`));
+
       targetRels.forEach(r => {
         window.open(seedEdit(r.mbid, r.url), '_blank');
       });
+      await delay(1000);
+      button.disabled = false;
     });
 
     li.appendChild(button);
@@ -95,7 +103,14 @@ async function apiCall(mbid) {
     const relations = data.relations || [];
 
     const amRels = relations
-      .filter((rel) => rel.url?.resource?.includes('apple.com'))
+      .filter((rel) => {
+        const urlStr = rel.url?.resource;
+        if (!urlStr) return false;
+        const isApple = urlStr.includes('apple.com');
+        const hasCountryCode = /\.apple\.com\/[a-z]{2}\//i.test(urlStr);
+
+        return isApple && hasCountryCode;
+      })
       .map((rel) => ({
         mbid: rel.url.id,
         url: rel.url.resource
