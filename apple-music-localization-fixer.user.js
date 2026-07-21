@@ -8,7 +8,7 @@
 // @match       https://*.musicbrainz.org/artist/*
 // @match       https://*.musicbrainz.eu/artist/*
 // @grant       none
-// @version     2026.07.21.6
+// @version     2026.07.21.8
 // @author      afro
 // @icon        https://music.apple.com/assets/favicon/favicon-16.png
 // @description Edits the localization of Apple Music and iTunes URLs to match the entity's area
@@ -21,11 +21,11 @@ function delay(ms) {
 
 async function addToUI() {
   const artistPropertiesSection = document.querySelector('dl.properties');
-  const artistArea = artistPropertiesSection.querySelector('dd.area');
+  const artistArea = artistPropertiesSection.querySelector('dd.area') || artistPropertiesSection.querySelector('dd.begin_area');
   if (!artistArea) return;
 
   const allExternalLinks = document.querySelector('#sidebar ul.external_links');
-  const amLiElems = allExternalLinks.querySelectorAll('.applemusic-favicon');
+  const amLiElems = allExternalLinks.querySelectorAll('.applemusic-favicon, .itunes-favicon');
   if (!allExternalLinks || !amLiElems.length) return;
 
   const artistMBID = location.pathname.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)[0];
@@ -40,7 +40,7 @@ async function addToUI() {
 
   // run if there's more than one link, or if the only link is not the correct localization
   if (amLiElems.length > 1 || !amLiElems[0].firstChild.href.includes(`/${artistCountryCode}/`)) {
-    const lastAMLink = amLiElems[amLiElems.length - 1];
+    const targetArea = amLiElems[0].parentElement.lastChild;
 
     const li = document.createElement('li');
     li.className = 'buttons';
@@ -49,6 +49,7 @@ async function addToUI() {
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = 'Edit URL localization';
+    button.title = `Edit the localization of all Apple Music / iTunes links\nto match this entity's area`;
 
     function seedEdit(urlMBID, oldURL) {
       // returns seeded url to be opened in a new tab
@@ -80,7 +81,7 @@ async function addToUI() {
     });
 
     li.appendChild(button);
-    lastAMLink.after(li);
+    targetArea.after(li);
   }
 }
 
