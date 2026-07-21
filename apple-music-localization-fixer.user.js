@@ -8,7 +8,7 @@
 // @match       https://*.musicbrainz.org/artist/*
 // @match       https://*.musicbrainz.eu/artist/*
 // @grant       none
-// @version     2026.07.21.3
+// @version     2026.07.21.4
 // @author      afro
 // @icon        https://music.apple.com/assets/favicon/favicon-16.png
 // @description Edits the localization of Apple Music and iTunes URLs to match the entity's area
@@ -26,8 +26,9 @@ async function addToUI() {
 
   const artistMBID = location.pathname.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)[0];
 
-  // the two last letters of the class name of the flag in the area selector
-  const artistCountryCode = artistArea.querySelector('span.flag').className.match(/\w{2}$/)[0].toLowerCase();
+  // the two last letters of the class name of the last flag in the area selector
+  const flags = artistArea.querySelectorAll('span.flag');
+  const artistCountryCode = flags[flags.length - 1].className.match(/\w{2}$/)[0].toLowerCase();
   if (!artistCountryCode) return;
 
   // don't add a button if the only am link has the correct localization
