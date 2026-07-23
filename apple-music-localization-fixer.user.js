@@ -8,7 +8,7 @@
 // @match       https://*.musicbrainz.org/artist/*
 // @match       https://*.musicbrainz.eu/artist/*
 // @grant       none
-// @version     2026.07.21.8
+// @version     2026.07.23.1
 // @author      afro
 // @icon        https://music.apple.com/assets/favicon/favicon-16.png
 // @description Edits the localization of Apple Music and iTunes URLs to match the entity's area
@@ -21,68 +21,64 @@ function delay(ms) {
 
 async function addToUI() {
   const artistPropertiesSection = document.querySelector('dl.properties');
+  // fall back to begin area if area is not available
   const artistArea = artistPropertiesSection.querySelector('dd.area') || artistPropertiesSection.querySelector('dd.begin_area');
-  if (!artistArea) return;
+
+  // the two last letters of the class name of the last flag in the area selector
+  const flags = artistArea?.querySelectorAll('span.flag');
+  if (!flags?.length) return;
+  const artistCountryCode = flags[flags.length - 1].className.match(/\w{2}$/)[0].toLowerCase();
 
   const allExternalLinks = document.querySelector('#sidebar ul.external_links');
   const amLiElems = allExternalLinks.querySelectorAll('.applemusic-favicon, .itunes-favicon');
-  if (!allExternalLinks || !amLiElems.length) return;
+
+  // return if there are no links, or if all apple links are already correct
+  if (!amLiElems.length || [...amLiElems].every(li => li.querySelector('a').href.includes(`/${artistCountryCode}/`))) return;
 
   const artistMBID = location.pathname.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)[0];
 
-  // the two last letters of the class name of the last flag in the area selector
-  const flags = artistArea.querySelectorAll('span.flag');
-  const artistCountryCode = flags[flags.length - 1].className.match(/\w{2}$/)[0].toLowerCase();
-  if (!artistCountryCode) return;
+  const targetArea = amLiElems[0].parentElement.lastChild;
 
-  // don't add a button if the only am link has the correct localization
-  if (amLiElems.length === 1 && amLiElems[0].firstChild.href.includes(`/${artistCountryCode}/`)) return;
+  const li = document.createElement('li');
+  li.className = 'buttons';
+  li.style.display = 'inline-block';
 
-  // run if there's more than one link, or if the only link is not the correct localization
-  if (amLiElems.length > 1 || !amLiElems[0].firstChild.href.includes(`/${artistCountryCode}/`)) {
-    const targetArea = amLiElems[0].parentElement.lastChild;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = 'Edit URL localization';
+  button.title = `Edit the localization of all Apple Music / iTunes links\nto match this entity's area`;
 
-    const li = document.createElement('li');
-    li.className = 'buttons';
-    li.style.display = 'inline-block';
+  function seedEdit(urlMBID, oldURL) {
+    // returns seeded url to be opened in a new tab
+    const newURL = oldURL.replace(/\/\w{2}\//, `/${artistCountryCode}/`);
+    const editNoteLines = [
+      `Changing URL localization to match this entity's area (${artistCountryCode.toUpperCase()})`,
+      `${location.origin}/artist/${artistMBID}`,
+      `${oldURL} → ${newURL}`,
+      `-`,
+      `Using the ${GM_info.script.name} script - ${GM_info.script.homepageURL}`
+    ];
 
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = 'Edit URL localization';
-    button.title = `Edit the localization of all Apple Music / iTunes links\nto match this entity's area`;
+    const editNote = editNoteLines.join('\n');
 
-    function seedEdit(urlMBID, oldURL) {
-      // returns seeded url to be opened in a new tab
-      const newURL = oldURL.replace(/\/\w{2}\//, `/${artistCountryCode}/`);
-      const editNoteLines = [
-        `Changing URL localization to match this entity's area (${artistCountryCode.toUpperCase()})`,
-        `${location.origin}/artist/${artistMBID}`,
-        `${oldURL} → ${newURL}`,
-        `-`,
-        `Using the ${GM_info.script.name} script - ${GM_info.script.homepageURL}`
-      ];
-
-      const editNote = editNoteLines.join('\n');
-
-      return `/url/${urlMBID}/edit?edit-url.url=${newURL}&edit-url.edit_note=${encodeURIComponent(editNote)}`;
-    }
-
-    button.addEventListener('click', async () => {
-      button.disabled = true;
-      const rels = await apiCall(artistMBID);
-      // skip any rels with the correct localization
-      const targetRels = rels.filter((e) => !e.url.includes(`/${artistCountryCode}/`));
-
-      targetRels.forEach(r => {
-        window.open(seedEdit(r.mbid, r.url), '_blank');
-      });
-      await delay(1000);
-      button.disabled = false;
-    });
-
-    li.appendChild(button);
-    targetArea.after(li);
+    return `/url/${urlMBID}/edit?edit-url.url=${newURL}&edit-url.edit_note=${encodeURIComponent(editNote)}`;
   }
+
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    const rels = await apiCall(artistMBID);
+    // skip any rels with the correct localization
+    const targetRels = rels.filter((e) => !e.url.includes(`/${artistCountryCode}/`));
+
+    targetRels.forEach(r => {
+      window.open(seedEdit(r.mbid, r.url), '_blank');
+    });
+    await delay(1000);
+    button.disabled = false;
+  });
+
+  li.appendChild(button);
+  targetArea.after(li);
 }
 
 async function apiCall(mbid) {
