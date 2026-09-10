@@ -5,7 +5,7 @@
 // @downloadURL  https://raw.github.com/afrocatmusic/userscripts/main/afros-sublinks.user.js
 // @match        http*://*musicbrainz.*/*
 // @grant        none
-// @version      2026.5.25.1
+// @version      2026.9.10.1
 // @author       afro
 // @description  Mouse over links and press shift to open a menu with useful shortcuts
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
@@ -20,7 +20,7 @@ function css() {
       backdrop-filter: blur(3px);
       filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.2));
       background: rgba(255, 255, 255, 0.75);
-      border: 2px solid grey;
+      border: 2px solid var(--mb-orange);
       border-radius: 5px;
       padding: 5px;
       position: absolute;
@@ -32,6 +32,10 @@ function css() {
       list-style: none;
       padding: 0px;
       margin: 2px;
+      user-select: none;
+    }
+    .sublinksContainer ul li:hover {
+      background-color: rgba(0, 0, 0, 0.1);
     }
     .svg-container {
       display: inline-block;
