@@ -20,7 +20,7 @@ function css() {
       backdrop-filter: blur(3px);
       filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.2));
       background: rgba(255, 255, 255, 0.75);
-      border: 2px solid var(--mb-orange);
+      border: 2px solid #eb743b;
       border-radius: 5px;
       padding: 5px;
       position: absolute;
