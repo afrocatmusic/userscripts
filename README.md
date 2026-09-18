@@ -5,19 +5,13 @@ That being said, these scripts work fine for me, I use [Firefox](https://www.moz
 I'm also very new to github :D  
 
 ### [MBz Blur NSFW cover art](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Blur-NSFW-cover-art.user.js)  
-Blurs NSFW cover art on MusicBrainz if it's tagged appropriately. Works on release and release group pages.
+Blurs NSFW cover art on MusicBrainz if it's tagged appropriately.
 
 ### [RYM Search release in MusicBrainz](https://github.com/afrocatmusic/userscripts/blob/main/RYM-Search-release-in-MusicBrainz.user.js)
 Adds a link to [RateYourMusic](https://rateyourmusic.com/) release pages to search the current release in MusicBrainz.
 
 ### [MBz Copy URLs](https://github.com/afrocatmusic/userscripts/blob/main/MBz-Copy-URLs.user.js)
 Adds a button to MusicBrainz releases to copy all URL relationships to the clipboard. It also enables copying barcodes in one click.
-
-### [afro's Beatsource Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Beatsource-Add-Ons.user.js)
-Adds some extra info to Beatsource release pages and some handy links to help import releases to MusicBrainz.  
-
-<img height="600" alt="beatsource add-ons screenshot" src="https://github.com/user-attachments/assets/9f6e0ac1-e671-48a0-baa1-6e6421c9f624" />
-
 
 ### [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
 Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.  
@@ -28,8 +22,9 @@ A spiritual successor of [Harmony Youtube Music Lookup](https://github.com/afroc
 
 ### [afro's sublinks](https://github.com/afrocatmusic/userscripts/blob/main/afros-sublinks.user.js)  
 Hover over a [MusicBrainz entity link](https://musicbrainz.org/doc/MusicBrainz_Entity) and press `Shift` to open a sublinks menu.  
-  
-<img width="256" height="344" alt="afro's sublinks screenshot" src="https://github.com/user-attachments/assets/643b16c6-fc57-4515-a648-51fa18a0794f" />
+
+<img width="263" height="361" alt="afro's sublinks screenshot" src="https://github.com/user-attachments/assets/a734eed4-a03c-4ddf-ba2b-25bdcca99797" />
+
 
 
 ### [afro's search utilities](https://github.com/afrocatmusic/userscripts/blob/main/afros-search-utils.user.js)  
