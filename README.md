@@ -16,9 +16,8 @@ Adds a button to MusicBrainz releases to copy all URL relationships to the clipb
 ### [afro's Harmony Add-Ons](https://github.com/afrocatmusic/userscripts/blob/main/afros-Harmony-Add-Ons.user.js)
 Adds extra lookup options and various "copy to clipboard" functions to Harmony's release pages.  
 A spiritual successor of [Harmony Youtube Music Lookup](https://github.com/afrocatmusic/userscripts/blob/main/Harmony-YouTube-Music-Lookup.user.js), don't use both at the same time!  
-  
-<img width="800" alt="harmony add-ons screenshot" src="https://github.com/user-attachments/assets/20634bec-9180-41fd-86c0-c788bbec0f1d" />
 
+<img width="800" alt="harmony add-ons screenshot" src="https://github.com/user-attachments/assets/d7d4b512-9f86-488b-9e6b-17138db89d7e" />
 
 ### [afro's sublinks](https://github.com/afrocatmusic/userscripts/blob/main/afros-sublinks.user.js)  
 Hover over a [MusicBrainz entity link](https://musicbrainz.org/doc/MusicBrainz_Entity) and press `Shift` to open a sublinks menu.  
