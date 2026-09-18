@@ -4,7 +4,8 @@
 // @updateURL   https://raw.github.com/afrocatmusic/userscripts/main/afros-Harmony-Add-Ons.user.js
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/afros-Harmony-Add-Ons.user.js
 // @match       https://harmony.pulsewidth.org.uk/release?*
-// @version     1.4
+// @match       https://harmony.mybrainz.dev/release?*
+// @version     2026.9.18
 // @author      afro
 // @grant       GM_setClipboard
 // @grant       GM.setClipboard
@@ -25,18 +26,18 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-//--- add search links for youtube music, qobuz, beatsource, and HDTracks
+//--- add search links
 function addSearchLinks() {
-  if (!$('.release')[0]) {return;} // if harmony can't find a release, return early
+  if (!$('.release').length) return; // if harmony can't find a release, return early
 
   //deal with VA
   let relArtist = '';
-  if ($('.artist-credit')[0].childElementCount < 5) {
-        relArtist = $('.release-artist')[0].textContent.slice(3).replaceAll('&','%26').replaceAll('/',' ');
+  if ($('div.release-artist .artist-credit').length < 5) {
+        relArtist = $('.release-artist').text().replace('by ', '').replaceAll('&','%26').replaceAll('/',' ');
     } else {
         relArtist = 'Various Artists';
     }
-  let relTitle = $('.release-title')[0].textContent.replaceAll('&','%26').replaceAll('/',' ');
+  let relTitle = $('.release-title').text().replaceAll('&','%26').replaceAll('/',' ');
 
   //YouTube Music
   let barcode = $('[title="Global Trade Item Number"]').parent().next().text().replace(/^0+/,''); //remove leading zeroes
@@ -57,14 +58,25 @@ function addSearchLinks() {
   let qbzRegion = regionMap[regionKey] || defaultQbzRegion;
   let qbzSearchURL = `https://www.qobuz.com/${qbzRegion}/search/albums/${relArtist} ${relTitle}`;
 
-  //Beatsource
-  let btsSearchURL = `https://www.beatsource.com/search/releases?q=${relArtist} ${relTitle}`;
+  //Volumo
+  const volumoBarcodeURL = `https://volumo.com/album/${barcode}`;
 
   //HDTracks
   let hdtSearchURL = `https://www.hdtracks.com/#/search?q=${relArtist}%20${relTitle}`;
 
+  //Traxsource
+  let trxSearchURL = `https://www.traxsource.com/search/titles?term=${relArtist}%20${relTitle}`;
+
+  // audiomack
+  const audiomackURL = `https://audiomack.com/search?q=${relArtist}%20${relTitle}`;
+
   $('h2.center').next().append(`<div class="row">
-    <a href="${qbzSearchURL}">Search Qobuz</a> | <a href="${ytRelURL}">Search YouTube Music</a> | <a href="${btsSearchURL}">Search Beatsource</a> | <a href="${hdtSearchURL}">Search HDTracks</a>
+    <a href="${qbzSearchURL}">Search Qobuz</a> |
+    <a href="${ytRelURL}">Search YouTube Music</a> |
+    <a href="${volumoBarcodeURL}">Search Volumo (barcode)</a> |
+    <a href="${hdtSearchURL}">Search HDTracks</a> |
+    <a href="${trxSearchURL}">Search Traxsource</a> |
+    <a href="${audiomackURL}">Search Audiomack</a>
   </div>`);
 }
 addSearchLinks();
@@ -86,18 +98,23 @@ let copySVGCheck = `
   </svg>
 `;
 
-//--- copy permalink
-function copyPermalink() {
-  const permalinkElem = $('p.center');
-  const permalink = permalinkElem.find('a')[0].href;
-  let copyButton = $(`<button class="copy" type="button" title="Copy to clipboard" style="margin-left: 0.3em;">${copySVG}</button>`)
+//helper function for creating buttons
+function createButton(text, area) {
+  let copyButton = $(`<button class="copy" type="button" title="Copy to clipboard">${copySVG}</button>`)
     .on('click', async () => {
-      writeClipboardText(permalink);
+      writeClipboardText(text);
       copyButton.html(copySVGCheck);
       await delay(1000);
       copyButton.html(copySVG);
     })
-    .appendTo(permalinkElem);
+    .appendTo(area);
+}
+
+//--- copy permalink
+function copyPermalink() {
+  const permalinkElem = $('p.center');
+  const permalink = permalinkElem.find('a')[0].href;
+  createButton(permalink, permalinkElem);
 }
 copyPermalink();
 
@@ -106,15 +123,16 @@ function copyCatNo() {
   let catNoElement = $('.release-labels')[0].lastChild.lastChild;
   let catNo = catNoElement.textContent.trim();
   if (catNo.length > 0) { //check if there's a catalog number
-    const area = $('.release-labels > li')[0];
-    let copyButton = $(`<button class="copy" type="button" title="Copy to clipboard" style="margin-left: 0.3em;">${copySVG}</button>`)
-      .on('click', async () => {
-        writeClipboardText(catNo);
-        copyButton.html(copySVGCheck);
-        await delay(1000);
-        copyButton.html(copySVG);
-      })
-      .appendTo(area);
+    const catNoArea = $('.release-labels > li')[0];
+  createButton(catNo, catNoArea);
   }
 }
 copyCatNo();
+
+function copyDate() {
+  let dateElem = $('th:contains("Release date")').next();
+  createButton(dateElem.contents().first().text(), dateElem);
+  dateElem.find('button').prependTo(dateElem); //move to first child
+
+}
+copyDate();
