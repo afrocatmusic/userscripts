@@ -73,7 +73,7 @@ function addSearchLinks() {
   $('h2.center').next().append(`<div class="row">
     <a href="${qbzSearchURL}">Search Qobuz</a> |
     <a href="${ytRelURL}">Search YouTube Music</a> |
-    <a href="${volumoBarcodeURL}">Search Volumo (barcode)</a> |
+    <a href="${volumoBarcodeURL}">Search Volumo</a> |
     <a href="${hdtSearchURL}">Search HDTracks</a> |
     <a href="${trxSearchURL}">Search Traxsource</a> |
     <a href="${audiomackURL}">Search Audiomack</a>
