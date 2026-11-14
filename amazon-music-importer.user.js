@@ -5,7 +5,7 @@
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/amazon-music-importer.user.js
 // @match       https://music.amazon.tld/*
 // @grant       none
-// @version     2026.05.30.5
+// @version     2026.11.14.3
 // @author      afro
 // @icon        https://m.media-amazon.com/images/G/01/music/logo/1.0/smile_256x256.png
 // @description Import Amazon Music releases to MusicBrainz
@@ -16,9 +16,11 @@ function addToUI() {
   // only on releases
   if (!location.href.includes('/albums/')) return;
 
-  const targetArea = $('music-detail-header div[slot="icons"]');
-  if (!targetArea.length) return;
-
+  const targetArea = $('[aria-label="Report"]').parent().parent().parent();
+  if (!targetArea.length) {
+    window.setTimeout(addToUI, 200);
+    return;
+  }
   // prevent duplicates
   const importerClass = $('.musicbrainz-import-button');
   if (importerClass) importerClass.remove();
@@ -81,7 +83,7 @@ function collectData() {
   let relJoinPhrases = [];
   let releaseTitle = '';
 
-  const scriptElem = document.querySelector('script[type="application/ld+json"][data-react-helmet="true"]');
+  const scriptElem = [...document.querySelectorAll('script[type="application/ld+json"]')].filter((s) => s.innerHTML.includes('MusicAlbum'))[0];
   if (scriptElem) {
     const json = JSON.parse(scriptElem.innerHTML);
 
@@ -150,12 +152,18 @@ function collectData() {
   return data;
 }
 
+// https://stackoverflow.com/a/34064434
+function htmlDecode(input) {
+  const doc = new DOMParser().parseFromString(input, "text/html");
+  return doc.documentElement.textContent;
+}
+
 function addInput(form, name, val) {
   if (val === null || typeof val === 'undefined' || val === '') return;
   const input = document.createElement('input');
   input.type = 'hidden';
   input.name = name;
-  input.value = val;
+  input.value = htmlDecode(val);
   form.appendChild(input);
 }
 
@@ -277,10 +285,5 @@ function setupObserver() {
   addToUI();
 }
 
-const check = setInterval(() => {
-  if (document.querySelector('head title')) {
-    clearInterval(check);
-    addToUI();
-    setupObserver();
-  }
-}, 200);
+addToUI();
+setupObserver();
