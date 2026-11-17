@@ -5,22 +5,25 @@
 // @downloadURL https://raw.github.com/afrocatmusic/userscripts/main/amazon-music-importer.user.js
 // @match       https://music.amazon.tld/*
 // @grant       none
-// @version     2026.11.14.3
+// @version     2026.11.17.1
 // @author      afro
 // @icon        https://m.media-amazon.com/images/G/01/music/logo/1.0/smile_256x256.png
 // @description Import Amazon Music releases to MusicBrainz
 // @require     https://code.jquery.com/jquery-4.0.0.min.js
+// @require     https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.js
 // ==/UserScript==
 
 function addToUI() {
   // only on releases
   if (!location.href.includes('/albums/')) return;
 
-  const targetArea = $('[aria-label="Report"]').parent().parent().parent();
-  if (!targetArea.length) {
+  const a = document.querySelector('[data-testid*="Toolbar_Play_Button"][aria-label="Play"]');
+  if (!a) {
     window.setTimeout(addToUI, 200);
     return;
   }
+  const targetArea = a.parentElement.parentElement;
+
   // prevent duplicates
   const importerClass = $('.musicbrainz-import-button');
   if (importerClass) importerClass.remove();
@@ -54,11 +57,14 @@ function addToUI() {
 }
 
 function splitArtists(string) {
-  const joinPhraseRegex = /(, | & | feat\. | featuring | ft\. )/g;
-  const artistArray = string.replace(joinPhraseRegex, '\n').split('\n');
-  const joinPhrases = string.match(joinPhraseRegex) || '';
+  // remove square brackets
+  const clean = string.replace(/\[|\]/g, '');
 
-  return { artistArray, joinPhrases };
+  const joinPhraseRegex = /(, | & | feat\. | featuring | ft\. )/g;
+  const artistArray = clean.replace(joinPhraseRegex, '\n').split('\n');
+  const joinPhrases = clean.match(joinPhraseRegex) || '';
+
+  return {artistArray, joinPhrases};
 }
 
 function collectData() {
@@ -105,13 +111,21 @@ function collectData() {
     }
   }
 
-  const copyrightLine = document.querySelector('div#main_content div span.music-tertiary-text')?.textContent;
+  const divs = [...document.querySelectorAll('div')].filter((d) => {
+    if (d.textContent.includes('℗') || d.textContent.includes('©') || d.textContent.toLowerCase().includes('(c)') || d.textContent.toLowerCase().includes('(p)')) {
+      return d;
+    }
+  });
+  const c = divs[divs.length - 1];
+  const copyrightLine = c.textContent;
+
 
   let trackArtists = [];
   let trackJoinPhrases = [];
-  const trackRows = document.querySelectorAll('music-text-row');
+  const trackRows = document.querySelectorAll('[data-playback-engage-region="true"]');
   for (let row of trackRows) {
-    const rawartistText = row.querySelector('music-link[kind="secondary"]:has(a[href^="/artists"])')?.textContent;
+    const artistElem = row.querySelector('a[href^="/artists"]');
+    const rawartistText = artistElem?.textContent;
     if (rawartistText) {
       const artistsAndPhrases = splitArtists(rawartistText);
       trackArtists.push(artistsAndPhrases.artistArray);
@@ -152,18 +166,12 @@ function collectData() {
   return data;
 }
 
-// https://stackoverflow.com/a/34064434
-function htmlDecode(input) {
-  const doc = new DOMParser().parseFromString(input, "text/html");
-  return doc.documentElement.textContent;
-}
-
 function addInput(form, name, val) {
   if (val === null || typeof val === 'undefined' || val === '') return;
   const input = document.createElement('input');
   input.type = 'hidden';
   input.name = name;
-  input.value = htmlDecode(val);
+  input.value = typeof val === 'string' ? he.decode(val) : val;
   form.appendChild(input);
 }
 
